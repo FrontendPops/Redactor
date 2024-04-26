@@ -1,35 +1,44 @@
 package com.tsu.redactorapp
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import android.provider.MediaStore
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import com.tsu.redactorapp.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    companion object {
+        const val KEY_IMAGE_URI = "imageUri"
+    }
 
+    private  lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setListeners()
+    }
 
-        val navView: BottomNavigationView = binding.navView
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            data?.data?.let { imageUri ->
+                Intent(applicationContext, EditImageActivity::class.java).also { editImageIntent ->
+                    editImageIntent.putExtra(KEY_IMAGE_URI, imageUri)
+                    startActivity(editImageIntent)
+                }
+            }
+        }
+    }
 
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
-            )
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+    private fun setListeners() {
+        binding.buttonFilters.setOnClickListener {
+            val pickerIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            pickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            pickImageLauncher.launch(pickerIntent)
+        }
     }
 }
