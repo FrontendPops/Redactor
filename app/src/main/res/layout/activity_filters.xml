@@ -6,35 +6,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:background="@color/surface"
     tools:context=".EditImageActivity">
-    
+
     <LinearLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="@color/primary"
-        android:gravity="center_vertical"
+        android:background="@color/surface"
         android:orientation="horizontal"
         android:padding="@dimen/_8sdp"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageBack"
-            android:layout_width="@dimen/_22sdp"
-            android:layout_height="@dimen/_22sdp"
-            android:src="@drawable/baseline_arrow_back_24"
-            android:tint="@color/white"/>
-
-        <TextView
-            android:layout_width="match_parent"
+            android:elevation="8dp"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:src="@drawable/baseline_arrow_circle_left_24"
+            android:tint="@color/primary" />
+        <View
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="center_horizontal"
-            android:includeFontPadding="false"
-            android:text="@string/title"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_16ssp" />
+            android:layout_width="0dip"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageSave"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:elevation="8dp"
+            android:src="@drawable/baseline_check_circle_24"
+            android:tint="@color/primary" />
 
     </LinearLayout>
 
@@ -42,24 +44,26 @@
         android:id="@+id/imagePreview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scaleType="centerCrop"
+        android:background="@color/surface"
+        android:backgroundTint="@color/surface"
+
+        android:scaleType="fitCenter"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/filtersRecyclerView"
-        app:layout_constraintTop_toBottomOf="@id/layoutHeader"/>
+        app:layout_constraintBottom_toTopOf="@id/imageRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader"
+        app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/filtersRecyclerView"
+        android:id="@+id/imageRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_105sdp"
-        android:background="@color/primary"
-        android:clipChildren="true"
-        android:orientation="horizontal"
-        android:paddingStart="0dp"
-        android:paddingTop="@dimen/_10sdp"
-        android:paddingEnd="@dimen/_8sdp"
-        android:paddingBottom="@dimen/_8sdp"
-        app:layoutManager="LinearLayoutManager"
+        android:layout_height="70dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/surface"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/item_container_filter" />
+        tools:layout_editor_absoluteX="0dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

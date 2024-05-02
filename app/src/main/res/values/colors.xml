@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#4E8022</color>
+    <color name="primary">#D0BCFF</color>
+    <color name="surface">#141218</color>
+    <color name="surfaceContainerHigh">#2B2930</color>
     <color name="primaryDark">#FF6200EE</color>
     <color name="secondary">#FF3700B3</color>
-    <color name="primaryText">#FF000000</color>
+    <color name="primaryText">#E6E0E9</color>
     <color name="secondaryText">#FF018786</color>
     <color name="landingBackgroundCenter">#FF000000</color>
     <color name="landingBackGroundEnd">#FFFFFFFF</color>
     <color name="buttonSavedImages">#FFFFFFFF</color>
     <color name="buttonEditNewImage">#FFFFFFFF</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#CAC4D0</color>
 </resources>

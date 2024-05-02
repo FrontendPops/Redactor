@@ -36,8 +36,9 @@ class MainActivity : ComponentActivity() {
 
     private fun setListeners() {
         binding.buttonFilters.setOnClickListener {
-            val pickerIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            pickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val pickerIntent = Intent(Intent.ACTION_PICK).apply {
+                type = "image/*"
+            }
             pickImageLauncher.launch(pickerIntent)
         }
     }

@@ -2,7 +2,7 @@
     <string name="main_activity_filters_button">edit photo</string>
     <string name="main_activity_cube_button">cube</string>
     <string name="app_name">RedactorApp</string>
-    <string name="title">Apply filters</string>
+    <string name="title">apply filters</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_main">MainActivity</string>

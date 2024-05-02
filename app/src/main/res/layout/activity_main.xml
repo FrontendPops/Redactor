@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/surface">
 
     <LinearLayout
-        android:layout_width="@dimen/_150sdp"
+        android:layout_width="@dimen/_130sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,14 +19,26 @@
             android:id="@+id/buttonFilters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:text="@string/main_activity_filters_button" />
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:elevation="8dp"
+            android:text="@string/main_activity_filters_button"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:visibility="visible"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/buttonCube"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:text="@string/main_activity_cube_button" />
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:elevation="8dp"
+            android:text="@string/main_activity_cube_button"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
