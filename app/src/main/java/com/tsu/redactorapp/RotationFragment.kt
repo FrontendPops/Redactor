@@ -1,7 +1,6 @@
 package com.tsu.redactorapp
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,9 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.widget.AppCompatImageView
-import com.tsu.redactorapp.EditImageActivity
-import com.tsu.redactorapp.FilterFragment
-import com.tsu.redactorapp.R
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
