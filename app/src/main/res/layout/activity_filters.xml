@@ -9,57 +9,24 @@
     android:background="@color/surface"
     tools:context=".EditImageActivity">
 
-    <LinearLayout
-        android:id="@+id/layoutHeader"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:background="@color/surface"
-        android:orientation="horizontal"
-        android:padding="@dimen/_8sdp"
-        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageBack"
-            android:elevation="8dp"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:src="@drawable/baseline_arrow_circle_left_24"
-            android:tint="@color/primary" />
-        <View
-            android:layout_height="wrap_content"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageSave"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:elevation="8dp"
-            android:src="@drawable/baseline_check_circle_24"
-            android:tint="@color/primary" />
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/imageRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/surface"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
 
     <FrameLayout
         android:id="@+id/fragmentContainerView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageRecyclerView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutHeader">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
     </FrameLayout>
+
+
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,7 +18,6 @@ class FilterFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_filter, container, false)
 
     }
@@ -31,8 +30,37 @@ class FilterFragment : Fragment() {
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
     }
+
+    fun applyBlackAndWhiteFilter(bitmap: Bitmap): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val pixel = bitmap.getPixel(x, y)
+
+                // Extracting RGB components
+                val red = (pixel shr 16) and 0xFF
+                val green = (pixel shr 8) and 0xFF
+                val blue = pixel and 0xFF
+
+                // Converting to grayscale using luminance formula
+                val gray = (0.299 * red + 0.587 * green + 0.114 * blue).toInt()
+
+                // Creating new pixel value with grayscale
+                val newPixel = (0xFF shl 24) or (gray shl 16) or (gray shl 8) or gray
+
+                // Setting pixel in result bitmap
+                resultBitmap.setPixel(x, y, newPixel)
+            }
+        }
+
+        return resultBitmap
+    }
+
     companion object {
         @JvmStatic
-        fun newInstance() =FilterFragment()
+        fun newInstance() = FilterFragment()
     }
 }
