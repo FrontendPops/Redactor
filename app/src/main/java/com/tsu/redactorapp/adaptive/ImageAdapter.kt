@@ -46,7 +46,7 @@ class ImageAdapter(private val listener: OnItemClickListener) : ListAdapter<Imag
         }
     }
 
-    fun getItemAtPosition(position: Int): ImageItem {
+    public fun getItemAtPosition(position: Int): ImageItem {
         return getItem(position)
     }
 }

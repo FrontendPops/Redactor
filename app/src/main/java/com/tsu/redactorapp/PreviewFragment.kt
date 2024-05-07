@@ -11,7 +11,10 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.MaskableFrameLayout
 import com.google.android.material.carousel.UncontainedCarouselStrategy
+import com.google.android.material.transition.Hold
+import com.google.android.material.transition.MaterialContainerTransform
 import com.tsu.redactorapp.adaptive.ImageAdapter
 import com.tsu.redactorapp.models.ImageItem
 
@@ -31,6 +34,9 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setListeners()
+        val fragmentFilter = FilterFragment()
+        fragmentFilter.sharedElementEnterTransition = MaterialContainerTransform()
+        exitTransition = Hold()
         val imageBack = view.findViewById<AppCompatImageView>(R.id.imageBack)
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
@@ -49,19 +55,25 @@ class PreviewFragment : Fragment(), OnItemClickListener {
             ImageItem(R.drawable.face_button)
         )
 
-
         val imageAdapter = ImageAdapter(this)
         imageRV.adapter = imageAdapter
         imageAdapter.submitList(imageList)
+
     }
 
 
     @SuppressLint("WrongViewCast")
     override fun onItemClick(position: Int) {
+        val imageAdapter = ImageAdapter(this)
+        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerView)
+        val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
+        currentView?.transitionName ="shared_element_two"
         when(position)
         {
-            1 -> activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.fragmentContainerView2, FilterFragment.newInstance())?.commit()
+            1 -> currentView?.let {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.fragmentContainerView2, FilterFragment.newInstance())?.commit()
+            }
         }
     }
     companion object {
@@ -72,8 +84,13 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     @Suppress("DEPRECATION")
     private fun setListeners() {
         val imageBack = view?.findViewById<AppCompatImageView>(R.id.imageBack)
+        val imageSave = view?.findViewById<AppCompatImageView>(R.id.imageSave)
         imageBack?.setOnClickListener {
             activity?.onBackPressed()
+        }
+        imageSave?.setOnClickListener {
+            val activity: EditImageActivity? = activity as EditImageActivity?
+            activity!!?.saveImageToGallery(activity.findViewById(android.R.id.content))
         }
     }
 }

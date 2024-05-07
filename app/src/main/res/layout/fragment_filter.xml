@@ -13,42 +13,88 @@
         android:layout_height="0dp"
         android:scaleType="fitCenter"
         android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/radioGroup"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="90dp"
-        android:orientation="horizontal"
+        android:layout_height="70dp"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/imagePreview"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:background="@drawable/roundedstyle"
+        android:elevation="8dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:transitionName="shared_element_two">
 
-        <RadioButton
-            android:id="@+id/firstFilterButton"
+        <ImageButton
+            android:id="@+id/filterButtonOne"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="match_parent"
+            android:background="@drawable/rounded_image"
+            android:src="@drawable/face_button"
+            android:scaleType="centerCrop"
+            android:elevation="8dp"
+            android:layout_marginHorizontal="@dimen/_10sdp" />
+        <ImageButton
+            android:id="@+id/filterButtonTwo"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="match_parent"
+            android:background="@drawable/rounded_image"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:scaleType="centerCrop"
+            android:elevation="8dp"
+            android:src="@drawable/face_button" />
+        <ImageButton
+            android:id="@+id/filterButtonThree"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="match_parent"
+            android:background="@drawable/rounded_image"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:scaleType="centerCrop"
+            android:elevation="8dp"
+            android:src="@drawable/face_button" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:padding="@dimen/_2sdp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/_8sdp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:checked="false"
-            android:text="RadioButton0" />
-        <RadioButton
-            android:id="@+id/secondFilterButton"
+            android:layout_height="match_parent"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:elevation="8dp"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_weight="1"
+            android:text="cancel"
+            android:layout_marginHorizontal="@dimen/_30sdp"/>
+
+        <Button
+            android:id="@+id/buttonApply"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:checked="false"
-            android:text="RadioButton1" />
-        <RadioButton
-            android:id="@+id/thirdFilterButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:checked="false"
-            android:text="RadioButton2" />
-    </RadioGroup>
+            android:layout_height="match_parent"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:elevation="8dp"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_weight="1"
+            android:text="apply"
+            android:layout_marginHorizontal="@dimen/_30sdp"/>
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

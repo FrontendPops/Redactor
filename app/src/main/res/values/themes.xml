@@ -8,6 +8,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primaryDark</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowActivityTransitions">
+            true
+        </item>
     </style>
 
     <style name="FullScreen" parent="Theme.RedactorApp">

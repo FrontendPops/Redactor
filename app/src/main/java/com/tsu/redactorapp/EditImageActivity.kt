@@ -1,22 +1,30 @@
 package com.tsu.redactorapp
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.view.animation.TranslateAnimation
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.carousel.UncontainedCarouselStrategy
+import com.google.android.material.snackbar.Snackbar
 import com.tsu.redactorapp.adaptive.ImageAdapter
 import com.tsu.redactorapp.databinding.ActivityFiltersBinding
 import com.tsu.redactorapp.models.ImageItem
+import java.io.IOException
 
 
 class EditImageActivity : AppCompatActivity() {
@@ -43,5 +51,28 @@ class EditImageActivity : AppCompatActivity() {
         sharedBitmap = newBitmap
     }
 
+    fun saveImageToGallery(view: View) {
+        // Assuming you have the image bitmap as 'bitmap'
 
+        val filename = "my_image.png"
+        val resolver = contentResolver
+        val contentValues = ContentValues()
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+
+        val imageUri: Uri? = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        imageUri?.let { uri ->
+            try {
+                resolver.openOutputStream(uri)?.use { fos ->
+                    sharedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                    Snackbar.make(view, "Image saved", Snackbar.LENGTH_SHORT).show()
+
+                }
+            } catch (e: IOException) {
+                // Handle error
+                e.printStackTrace()
+            }
+        }
+    }
 }

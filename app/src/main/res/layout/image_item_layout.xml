@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.carousel.MaskableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemContainer"
     android:layout_width="70dp"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,7 +9,8 @@
     android:elevation="8dp"
     android:gravity="center"
     app:shapeAppearance="?attr/shapeAppearanceCornerExtraLarge"
-    android:theme="@style/Theme.MaterialCarousel.materialComp">
+    android:theme="@style/Theme.MaterialCarousel.materialComp"
+    tools:ignore="InvalidId">
 
     <ImageView
         android:id="@+id/imageView"
