@@ -17,46 +17,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageRecyclerViewFilters"
+        android:layout_width="0dp"
         android:layout_height="70dp"
-        android:gravity="center"
-        android:background="@drawable/roundedstyle"
-        android:elevation="8dp"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/surface"
+        android:visibility="visible"
         android:layout_marginBottom="@dimen/_20sdp"
-        android:transitionName="shared_element_two">
-
-        <ImageButton
-            android:id="@+id/filterButtonOne"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="match_parent"
-            android:background="@drawable/rounded_image"
-            android:src="@drawable/face_button"
-            android:scaleType="centerCrop"
-            android:elevation="8dp"
-            android:layout_marginHorizontal="@dimen/_10sdp" />
-        <ImageButton
-            android:id="@+id/filterButtonTwo"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="match_parent"
-            android:background="@drawable/rounded_image"
-            android:layout_marginHorizontal="@dimen/_10sdp"
-            android:scaleType="centerCrop"
-            android:elevation="8dp"
-            android:src="@drawable/face_button" />
-        <ImageButton
-            android:id="@+id/filterButtonThree"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="match_parent"
-            android:background="@drawable/rounded_image"
-            android:layout_marginHorizontal="@dimen/_10sdp"
-            android:scaleType="centerCrop"
-            android:elevation="8dp"
-            android:src="@drawable/face_button" />
-    </LinearLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -65,7 +35,7 @@
         android:padding="@dimen/_2sdp"
         android:orientation="horizontal"
         android:layout_marginBottom="@dimen/_8sdp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/imageRecyclerViewFilters"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -94,7 +64,19 @@
             android:layout_weight="1"
             android:text="apply"
             android:layout_marginHorizontal="@dimen/_30sdp"/>
+
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:visibility="invisible"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePreview"
+        tools:layout_editor_absoluteX="172dp"
+        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

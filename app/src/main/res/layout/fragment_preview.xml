@@ -47,12 +47,12 @@
         android:scaleType="fitCenter"
         android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@+id/layoutHeader"
-        app:layout_constraintBottom_toTopOf="@id/imageRecyclerView"
+        app:layout_constraintBottom_toTopOf="@id/imageRecyclerViewPreview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/imageRecyclerView"
+        android:id="@+id/imageRecyclerViewPreview"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:background="@color/surface"

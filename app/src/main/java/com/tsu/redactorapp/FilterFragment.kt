@@ -1,5 +1,6 @@
 package com.tsu.redactorapp
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -7,17 +8,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.MaskableFrameLayout
+import com.google.android.material.carousel.UncontainedCarouselStrategy
+import com.tsu.redactorapp.adaptive.ImageAdapter
+import com.tsu.redactorapp.models.ImageItem
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import java.util.Random
+import kotlin.math.ceil
 
 
-class FilterFragment : Fragment() {
+@Suppress("DEPRECATION")
+class FilterFragment : Fragment(), OnItemClickListener {
+    lateinit var image: Bitmap
+    lateinit var filteredImage : Bitmap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -29,27 +38,112 @@ class FilterFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_filter, container, false)
     }
 
+    @SuppressLint("RestrictedApi")
     @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val activity: EditImageActivity? = activity as EditImageActivity?
-        val image = activity?.getBitMap()
+        image = activity?.getBitMap()!!
+        var filteredBitmap : Bitmap = image?.let { Bitmap.createBitmap(it) }!!
         val imagePreview = view.findViewById<AppCompatImageView>(com.tsu.redactorapp.R.id.imagePreview)
         image?.let { setFilterListeners(imagePreview, it) }
-        val bAndWPreview = view.findViewById<ImageButton>(com.tsu.redactorapp.R.id.filterButtonOne)
-        val contrastPreview = view.findViewById<ImageButton>(com.tsu.redactorapp.R.id.filterButtonTwo)
-        val blurPreview = view.findViewById<ImageButton>(com.tsu.redactorapp.R.id.filterButtonThree)
-        val ratio : Double = (image?.height ?: 1) / image?.width!!.toDouble()
-        val downscaledHeight = 80 * ratio
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
-        image.let { originalBitmap ->
-            val downscaled = resizeBitmap(image, 80, downscaledHeight.toInt())
-            bAndWPreview.setImageBitmap(applyBlackAndWhiteFilter(downscaled))
-            contrastPreview.setImageBitmap(applyContrast(downscaled, 2f))
-            blurPreview.setImageBitmap(blurBitmap(image, 5))
+
+        val imageRV = view.findViewById<RecyclerView>(R.id.imageRecyclerViewFilters)
+        imageRV.layoutManager = CarouselLayoutManager(UncontainedCarouselStrategy())
+        val imageList = arrayListOf(
+            ImageItem(R.drawable.bw_preview),
+            ImageItem(R.drawable.contrast_preview),
+            ImageItem(R.drawable.blur_preview),
+            ImageItem(R.drawable.noise_preview),
+            ImageItem(R.drawable.invert_preview)
+        )
+        val imageAdapter = ImageAdapter(this)
+        imageRV.adapter = imageAdapter
+        imageAdapter.submitList(imageList)
+
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onStart() {
+        super.onStart()
+        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewFilters)
+        imageRV?.layoutManager = CarouselLayoutManager(UncontainedCarouselStrategy())
+    }
+
+    @SuppressLint("WrongViewCast")
+    override fun onItemClick(position: Int) {
+        val imageAdapter = ImageAdapter(this)
+        val imagePreview = view?.findViewById<AppCompatImageView>(com.tsu.redactorapp.R.id.imagePreview)
+        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewFilters)
+        val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
+        when(position)
+        {
+            0 -> currentView?.let {
+                GlobalScope.async {
+                    imagePreview!!.setImageBitmap(applyBlackAndWhiteFilter(image!!))
+                }
+            }
+            1 -> currentView?.let {
+                imagePreview!!.setImageBitmap(applyContrast(image!!, 1.5f))
+            }
+            2 -> currentView?.let {
+                GlobalScope.async {
+                    imagePreview!!.setImageBitmap(blurBitmap(image!!, 5))
+                }
+            }
+            3 -> currentView?.let {
+                GlobalScope.async {
+                    imagePreview!!.setImageBitmap(addNoise(image!!, 20))
+                }
+            }
+            4 -> currentView?.let {
+                GlobalScope.async {
+                    imagePreview!!.setImageBitmap(invertBitmapColors(image!!))
+                }
+            }
+
+
+        }
+    }
+    fun getFilteredBitMap(): Bitmap {
+        return filteredImage
+    }
+
+    suspend fun invertBitmapColors(bitmap: Bitmap): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixelCount = height * width
+        val pixels = IntArray(pixelCount)
+        val destPixels = IntArray(pixelCount)
+
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val numberOfCores = Runtime.getRuntime().availableProcessors()
+        val chunkSize = ceil(pixelCount.toFloat() / numberOfCores).toInt()
+
+        withContext(Dispatchers.Default) {
+            val jobs = (0 until numberOfCores).map { core ->
+                async {
+                    val start = core * chunkSize
+                    val end = minOf(start + chunkSize, pixelCount)
+
+                    for (x in 0 until end) {
+                        val pixel = pixels[x]
+                        val red = 255 - Color.red(pixel)
+                        val green = 255 - Color.green(pixel)
+                        val blue = 255 - Color.blue(pixel)
+                        destPixels[x] = Color.rgb(red, green, blue)
+                    }
+                }
+            }
+            jobs.forEach { it.await() }
         }
 
+        val invertedBitmap = Bitmap.createBitmap(width, height, bitmap.config)
+        invertedBitmap.setPixels(destPixels, 0, width, 0, 0, width, height)
+
+        return invertedBitmap
     }
     fun blurBitmap(bitmap: Bitmap, radius: Int): Bitmap {
         val width = bitmap.width
@@ -62,36 +156,50 @@ class FilterFragment : Fragment() {
 
         val blurredPixels = IntArray(width * height)
 
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                var red = 0
-                var green = 0
-                var blue = 0
-                var count = 0
+        val numCoroutines = Runtime.getRuntime().availableProcessors() // Use available cores
+        val chunkSize = height / numCoroutines
 
-                for (dy in -radius..radius) {
-                    for (dx in -radius..radius) {
-                        val nx = x + dx
-                        val ny = y + dy
-                        if (nx in 0 until width && ny in 0 until height) {
-                            val pixel = pixels[ny * width + nx]
-                            red += Color.red(pixel)
-                            green += Color.green(pixel)
-                            blue += Color.blue(pixel)
-                            count++
+        runBlocking {
+            val jobs = List(numCoroutines) { index ->
+                launch(Dispatchers.Default) {
+                    val startY = index * chunkSize
+                    val endY = if (index == numCoroutines - 1) height else (index + 1) * chunkSize
+
+                    for (y in startY until endY) {
+                        for (x in 0 until width) {
+                            var red = 0
+                            var green = 0
+                            var blue = 0
+                            var count = 0
+
+                            for (dy in -radius..radius) {
+                                for (dx in -radius..radius) {
+                                    val nx = x + dx
+                                    val ny = y + dy
+                                    if (nx in 0 until width && ny in 0 until height) {
+                                        val pixel = pixels[ny * width + nx]
+                                        red += Color.red(pixel)
+                                        green += Color.green(pixel)
+                                        blue += Color.blue(pixel)
+                                        count++
+                                    }
+                                }
+                            }
+
+                            red /= count
+                            green /= count
+                            blue /= count
+
+                            blurredPixels[y * width + x] = Color.rgb(red, green, blue)
                         }
                     }
                 }
-
-                red /= count
-                green /= count
-                blue /= count
-
-                blurredPixels[y * width + x] = Color.rgb(red, green, blue)
             }
-        }
 
-        blurredBitmap.setPixels(blurredPixels, 0, width, 0, 0, width, height)
+            jobs.forEach { it.join() } // Wait for all coroutines to complete
+
+            blurredBitmap.setPixels(blurredPixels, 0, width, 0, 0, width, height)
+        }
 
         return blurredBitmap
     }
@@ -125,22 +233,85 @@ class FilterFragment : Fragment() {
 
         return contrastBitmap
     }
-    fun applyBlackAndWhiteFilter(bitmap: Bitmap): Bitmap {
+    suspend fun applyBlackAndWhiteFilter(bitmap: Bitmap): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
+        val pixelCount = height * width
         val resultBitmap = Bitmap.createBitmap(width, height, bitmap.config)
-        val pixels = IntArray(width * height)
-        val destPixels = IntArray(width * height)
+        val pixels = IntArray(pixelCount)
+        val destPixels = IntArray(pixelCount)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
-        for (x in 0 until width*height) {
-                val pixel = pixels[x]
-                val grayscale = toGrayscale(pixel)
-                destPixels[x] = grayscale
+
+        val numberOfCores = Runtime.getRuntime().availableProcessors()
+        val chunkSize = ceil(pixelCount.toFloat() / numberOfCores).toInt()
+
+        withContext(Dispatchers.Default) {
+            val jobs = (0 until numberOfCores).map { core ->
+                async {
+                    val start = core * chunkSize
+                    val end = minOf(start + chunkSize, pixelCount)
+                    for (x in 0 until end) {
+                        val pixel = pixels[x]
+                        val grayscale = toGrayscale(pixel)
+                        destPixels[x] = grayscale
+                    }
+                }
+            }
+            jobs.forEach { it.await() }
         }
         resultBitmap.setPixels(destPixels,0,width,0,0,width,height)
         return resultBitmap
     }
 
+    suspend fun addNoise(bitmap: Bitmap, intensity: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixelCount = width * height
+        val noisyBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val pixels = IntArray(pixelCount)
+        val destPixels = IntArray(pixelCount)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val random = Random()
+        val numberOfCores = Runtime.getRuntime().availableProcessors()
+        val chunkSize = ceil(pixelCount.toFloat() / numberOfCores).toInt()
+
+        withContext(Dispatchers.Default) {
+            val jobs = (0 until numberOfCores).map { core ->
+                async {
+                    val start = core * chunkSize
+                    val end = minOf(start + chunkSize, pixelCount)
+                    for (x in start until end) {
+                        val pixel = pixels[x]
+                        val noise = random.nextInt(intensity * 2 + 1) - intensity
+                        val newPixel = manipulatePixel(pixel, noise)
+                        destPixels[x] = newPixel
+                    }
+                }
+            }
+            jobs.forEach { it.await() }
+        }
+        noisyBitmap.setPixels(destPixels, 0, width, 0, 0, width, height)
+        return noisyBitmap
+    }
+
+    private fun manipulatePixel(pixel: Int, noise: Int): Int {
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val newRed = clamp(red + noise)
+        val newGreen = clamp(green + noise)
+        val newBlue = clamp(blue + noise)
+        return Color.rgb(newRed, newGreen, newBlue)
+    }
+
+    private fun clamp(value: Int): Int {
+        return when {
+            value < 0 -> 0
+            value > 255 -> 255
+            else -> value
+        }
+    }
     private fun toGrayscale(pixel: Int): Int {
         val alpha = Color.alpha(pixel)
         val red = Color.red(pixel)
@@ -226,29 +397,15 @@ class FilterFragment : Fragment() {
     private fun setFilterListeners(imagePreview : AppCompatImageView, image : Bitmap) {
         val buttonCancel = view?.findViewById<Button>(R.id.buttonCancel)
         val buttonApply = view?.findViewById<Button>(R.id.buttonApply)
-        val buttonOne = view?.findViewById<ImageButton>(R.id.filterButtonOne)
-        val buttonTwo = view?.findViewById<ImageButton>(R.id.filterButtonTwo)
-        val buttonThree = view?.findViewById<ImageButton>(R.id.filterButtonThree)
-        var filteredBitmap : Bitmap = Bitmap.createBitmap(image)
-        buttonOne?.setOnClickListener {
-            filteredBitmap = applyBlackAndWhiteFilter(image)
-            imagePreview.setImageBitmap(filteredBitmap)
-        }
-        buttonTwo?.setOnClickListener {
-            filteredBitmap = applyContrast(image, 1.8f)
-            imagePreview.setImageBitmap(filteredBitmap)
-        }
-        buttonThree?.setOnClickListener {
-            filteredBitmap = blurBitmap(image, 5)
-            imagePreview.setImageBitmap(filteredBitmap)
-        }
+
         buttonCancel?.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }
         buttonApply?.setOnClickListener {
             val activity: EditImageActivity? = activity as EditImageActivity?
-            activity!!.setBitMap(filteredBitmap)
+            val image : Bitmap = imagePreview.drawable.toBitmap()
+            activity!!.setBitMap(image)
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }

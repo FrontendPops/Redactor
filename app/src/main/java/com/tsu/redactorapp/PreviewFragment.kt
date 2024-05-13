@@ -43,7 +43,7 @@ class PreviewFragment : Fragment(), OnItemClickListener {
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imagePreview)
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
-        val imageRV = view.findViewById<RecyclerView>(R.id.imageRecyclerView)
+        val imageRV = view.findViewById<RecyclerView>(R.id.imageRecyclerViewPreview)
 
         imageRV.layoutManager = CarouselLayoutManager(UncontainedCarouselStrategy())
 
@@ -65,7 +65,7 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     @SuppressLint("WrongViewCast")
     override fun onItemClick(position: Int) {
         val imageAdapter = ImageAdapter(this)
-        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerView)
+        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewPreview)
         val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
         currentView?.transitionName ="shared_element_two"
         when(position)
