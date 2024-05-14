@@ -1,5 +1,6 @@
 package com.tsu.redactorapp
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -89,6 +90,7 @@ class ScaleFragment : Fragment() {
         getImageFromGallery.launch(intent)
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun scaleImage(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
             val scaledBitmap = scaleBitmap(bitmap, scaleFactor)
