@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PreviewFragment"
-    android:background="#FBF9F9"
+    android:background="@color/surface"
     >
+
 
     <SeekBar
         android:id="@+id/seekBarForImage"
@@ -19,14 +20,13 @@
         android:progress="50"
         android:progressDrawable="@drawable/track_seek_bar"
         android:thumb="@drawable/custom_seek_bar" />
-        />
-
+    />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="570dp"
-        android:layout_marginBottom="30dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="590dp"
+        android:layout_marginBottom="20dp"
         android:orientation="horizontal">
 
         <Button
@@ -39,16 +39,20 @@
             android:textColor="@color/primary"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:layout_weight="1"
+            android:layout_marginHorizontal="@dimen/_20sdp"
             android:text="turn left"/>
 
         <Button
             android:id="@+id/buttonRight"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="22dp"
-            android:layout_marginTop="5dp"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:elevation="8dp"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:layout_weight="1"
-            android:backgroundTint="@color/surfaceContainerHigh"
+            android:layout_marginHorizontal="@dimen/_20sdp"
             android:text="turn right" />
     </LinearLayout>
 
