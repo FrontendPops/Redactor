@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
+import android.widget.Toolbar
 import androidx.appcompat.widget.AppCompatImageView
 import com.google.android.material.slider.Slider
 import kotlin.math.abs
@@ -27,7 +28,6 @@ class RotationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_rotation, container, false)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,16 +35,21 @@ class RotationFragment : Fragment() {
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imageView2)
+        val rotatedImageView = view.findViewById<AppCompatImageView>(R.id.imageView3)
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
 
         val rotateButtonLeft = view.findViewById<Button>(R.id.buttonLeft)
         rotateButtonLeft.setOnClickListener {
+            rotatedImageView.visibility = View.INVISIBLE
+            imagePreview.visibility = View.VISIBLE
             rotatitonLeft(imagePreview)
         }
 
         val rotateButtonRight = view.findViewById<Button>(R.id.buttonRight)
         rotateButtonRight.setOnClickListener {
+            rotatedImageView.visibility = View.INVISIBLE
+            imagePreview.visibility = View.VISIBLE
             rotatitonRight(imagePreview)
         }
 
@@ -52,18 +57,17 @@ class RotationFragment : Fragment() {
         var angle = 0f
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean, ) {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 angle = progress.toFloat() * 360 / 100
+                imagePreview.visibility = View.INVISIBLE
+                rotatedImageView.visibility = View.VISIBLE
+                rotationAnyAngle(rotatedImageView, image!!, angle)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                rotationAnyAngle(imagePreview, angle)
-            }
-        },
-        )
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
     }
 
     companion object {
@@ -155,14 +159,11 @@ class RotationFragment : Fragment() {
         imagePreview.setImageBitmap(rotatedBitmap)
     }
 
-    fun rotationAnyAngle(imagePreview: AppCompatImageView, angle: Float) {
-        val bitmapDrawable = imagePreview.drawable
-        val bitmap = (bitmapDrawable as BitmapDrawable).bitmap
-
-        val width = bitmap.width
-        val height = bitmap.height
+    fun rotationAnyAngle(imageView: AppCompatImageView, originalBitmap: Bitmap, angle: Float) {
+        val width = originalBitmap.width
+        val height = originalBitmap.height
         val pixels = IntArray(width * height)
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        originalBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
         val radians = angle * (Math.PI / 180)
         val cosTheta = cos(radians)
@@ -172,11 +173,9 @@ class RotationFragment : Fragment() {
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-                // Рассчитываем координаты центра для поворота
                 val centerX = width / 2f
                 val centerY = height / 2f
 
-                // Вычисляем новые координаты после поворота
                 val newX = cosTheta * (x - centerX) - sinTheta * (y - centerY) + centerX
                 val newY = sinTheta * (x - centerX) + cosTheta * (y - centerY) + centerY
 
@@ -194,6 +193,8 @@ class RotationFragment : Fragment() {
 
         val rotatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         rotatedBitmap.setPixels(newPixels, 0, width, 0, 0, width, height)
-        imagePreview.setImageBitmap(rotatedBitmap)
+
+        // Отображаем повернутое изображение на rotatedImageView
+        imageView.setImageBitmap(rotatedBitmap)
     }
 }
