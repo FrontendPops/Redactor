@@ -78,6 +78,7 @@ dependencies {
     implementation("com.makeramen:roundedimageview:2.3.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("me.jorgecastillo:androidcolorx:0.2.0")
+    implementation ("com.quickbirdstudios:opencv-contrib:3.4.15")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
