@@ -90,7 +90,7 @@
         android:layout_height="300dp"
         android:layout_marginTop="100dp"
         android:layout_marginHorizontal="25dp"
-        android:scaleType="fitCenter"/>
+        android:scaleType="centerCrop"/>
 
 
 </FrameLayout>

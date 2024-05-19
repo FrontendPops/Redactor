@@ -10,9 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
-import android.widget.Toolbar
 import androidx.appcompat.widget.AppCompatImageView
-import com.google.android.material.slider.Slider
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -54,18 +52,27 @@ class RotationFragment : Fragment() {
         }
 
         val seekBar = view.findViewById<SeekBar>(R.id.seekBarForImage)
-        var angle = 0f
+        //var angle = 0f
+
+        var previousProgress = seekBar.progress
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                angle = progress.toFloat() * 360 / 100
+                val delta = progress - previousProgress
+                val angle: Float = if (delta >= 0) {
+                    // Ползунок движется вправо
+                    (progress - 50).toFloat() * 360f / 50f
+                } else {
+                    // Ползунок движется влево
+                    360 - (50 - progress).toFloat() * 360f / 50f
+                }
+                previousProgress = progress
                 imagePreview.visibility = View.INVISIBLE
                 rotatedImageView.visibility = View.VISIBLE
                 rotationAnyAngle(rotatedImageView, image!!, angle)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
     }
@@ -160,41 +167,47 @@ class RotationFragment : Fragment() {
     }
 
     fun rotationAnyAngle(imageView: AppCompatImageView, originalBitmap: Bitmap, angle: Float) {
+        val imageViewWidth = imageView.width.toFloat()
+        val imageViewHeight = imageView.height.toFloat()
+
         val width = originalBitmap.width
         val height = originalBitmap.height
         val pixels = IntArray(width * height)
         originalBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        val radians = angle * (Math.PI / 180)
-        val cosTheta = cos(radians)
-        val sinTheta = sin(radians)
+        val radians = Math.toRadians(angle.toDouble())
+        val cosTheta = Math.cos(radians)
+        val sinTheta = Math.sin(radians)
 
-        val newPixels = IntArray(width * height)
+        val centerX = width / 2f
+        val centerY = height / 2f
 
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val centerX = width / 2f
-                val centerY = height / 2f
+        val newWidth = (abs(cosTheta) * width + abs(sinTheta) * height).toFloat()
+        val newHeight = (abs(sinTheta) * width + abs(cosTheta) * height).toFloat()
 
-                val newX = cosTheta * (x - centerX) - sinTheta * (y - centerY) + centerX
-                val newY = sinTheta * (x - centerX) + cosTheta * (y - centerY) + centerY
+        val newPixels = IntArray(imageViewWidth.toInt() * imageViewHeight.toInt()) { Color.TRANSPARENT }
 
-                val roundedX = newX.roundToInt()
-                val roundedY = newY.roundToInt()
+        for (y in 0 until imageViewHeight.toInt()) {
+            for (x in 0 until imageViewWidth.toInt()) {
+                val newX = x - imageViewWidth / 2
+                val newY = y - imageViewHeight / 2
 
-                if (roundedX in 0 until width && roundedY in 0 until height) {
-                    val index = roundedY * width + roundedX
-                    newPixels[y * width + x] = pixels[index]
-                } else {
-                    newPixels[y * width + x] = Color.TRANSPARENT
-                }
+                val rotatedX = cosTheta * newX - sinTheta * newY + centerX
+                val rotatedY = sinTheta * newX + cosTheta * newY + centerY
+
+                val originalX = rotatedX.toInt().coerceIn(0, width - 1)
+                val originalY = rotatedY.toInt().coerceIn(0, height - 1)
+
+                val destX = x
+                val destY = y
+
+                newPixels[destY * imageViewWidth.toInt() + destX] = pixels[originalY * width + originalX]
             }
         }
 
-        val rotatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        rotatedBitmap.setPixels(newPixels, 0, width, 0, 0, width, height)
+        val rotatedBitmap = Bitmap.createBitmap(imageViewWidth.toInt(), imageViewHeight.toInt(), Bitmap.Config.ARGB_8888)
+        rotatedBitmap.setPixels(newPixels, 0, imageViewWidth.toInt(), 0, 0, imageViewWidth.toInt(), imageViewHeight.toInt())
 
-        // Отображаем повернутое изображение на rotatedImageView
         imageView.setImageBitmap(rotatedBitmap)
     }
 }
