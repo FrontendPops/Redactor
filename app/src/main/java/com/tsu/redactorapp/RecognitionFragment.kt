@@ -99,13 +99,13 @@ class RecognitionFragment : Fragment() {
     }
 
     private fun faceRecognition(input: Mat, context: Context): Mat {
-        val cascadeFileNames = listOf(
+        val cascadeFilesOpenCv = listOf(
             "haarcascade_frontalface_alt2.xml",
             "haarcascade_frontalface_alt.xml",
             "haarcascade_frontalface_alt_tree.xml",
         )
 
-        val cascadeFiles = cascadeFileNames.map { fileName ->
+        val cascadeFiles = cascadeFilesOpenCv.map { fileName ->
             val cascadeFileDir = context.getExternalFilesDir(null)
             val cascadeFile = File(cascadeFileDir, fileName)
 
@@ -123,7 +123,7 @@ class RecognitionFragment : Fragment() {
         for (cascadeFile in cascadeFiles) {
             val faceCascade = CascadeClassifier(cascadeFile.absolutePath)
             if (faceCascade.empty()) {
-                Log.e("OpenCV", "Ошибка загрузки cascade classifier ${cascadeFile.absolutePath}")
+                Log.e("OpenCV", "Ошибка загрузки ${cascadeFile.absolutePath}")
                 continue
             }
 
@@ -132,12 +132,31 @@ class RecognitionFragment : Fragment() {
             faces.push_back(tempFaces)
         }
 
-        faces.toArray().forEach { rect ->
-            Imgproc.rectangle(input, rect.tl(), rect.br(), Scalar(0.0, 255.0, 0.0), 3)
+        val faceBorders = faces.toArray()
+        faceBorders.forEach { rect ->
+            val faceBorder = input.submat(rect)
+            gammaFilter(faceBorder, 1.0, 20.0)
         }
 
         return input
     }
+
+    fun gammaFilter(image: Mat, alpha: Double, beta: Double) {
+        for (i in 0 until image.rows()) {
+            for (j in 0 until image.cols()) {
+                val pixel = image.get(i, j)
+                val newPixel = DoubleArray(pixel.size)
+
+                for (k in pixel.indices) {
+                    newPixel[k] = pixel[k] * alpha + beta
+                    newPixel[k] = newPixel[k].coerceIn(0.0, 255.0)
+                }
+
+                image.put(i, j, *newPixel)
+            }
+        }
+    }
+
 
     private fun saveImageToGallery(bitmap: Bitmap) {
         val savedImageURL = MediaStore.Images.Media.insertImage(
