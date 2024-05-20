@@ -99,27 +99,38 @@ class RecognitionFragment : Fragment() {
     }
 
     private fun faceRecognition(input: Mat, context: Context): Mat {
-        val cascadeFileName = "haarcascade_frontalface_alt2.xml"
+        val cascadeFileNames = listOf(
+            "haarcascade_frontalface_alt2.xml",
+            "haarcascade_frontalface_alt.xml",
+            "haarcascade_frontalface_alt_tree.xml",
+        )
 
-        val cascadeFileDir = context.getExternalFilesDir(null)
-        val cascadeFile = File(cascadeFileDir, cascadeFileName)
+        val cascadeFiles = cascadeFileNames.map { fileName ->
+            val cascadeFileDir = context.getExternalFilesDir(null)
+            val cascadeFile = File(cascadeFileDir, fileName)
 
-        if (!cascadeFile.exists()) {
-            context.resources.openRawResource(R.raw.haarcascade_frontalface_alt2).use { inputStream ->
-                FileOutputStream(cascadeFile).use { outputStream ->
-                    inputStream.copyTo(outputStream)
+            if (!cascadeFile.exists()) {
+                context.resources.openRawResource(context.resources.getIdentifier(fileName.removeSuffix(".xml"), "raw", context.packageName)).use { inputStream ->
+                    FileOutputStream(cascadeFile).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
             }
-        }
-
-        val faceCascade = CascadeClassifier(cascadeFile.absolutePath)
-        if (faceCascade.empty()) {
-            Log.e("OpenCV", "Ошибка загрузки cascade classifier ${cascadeFile.absolutePath}")
-            return input
+            cascadeFile
         }
 
         val faces = MatOfRect()
-        faceCascade.detectMultiScale(input, faces)
+        for (cascadeFile in cascadeFiles) {
+            val faceCascade = CascadeClassifier(cascadeFile.absolutePath)
+            if (faceCascade.empty()) {
+                Log.e("OpenCV", "Ошибка загрузки cascade classifier ${cascadeFile.absolutePath}")
+                continue
+            }
+
+            val tempFaces = MatOfRect()
+            faceCascade.detectMultiScale(input, tempFaces)
+            faces.push_back(tempFaces)
+        }
 
         faces.toArray().forEach { rect ->
             Imgproc.rectangle(input, rect.tl(), rect.br(), Scalar(0.0, 255.0, 0.0), 3)
