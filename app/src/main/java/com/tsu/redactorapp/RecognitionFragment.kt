@@ -133,29 +133,42 @@ class RecognitionFragment : Fragment() {
         }
 
         val faceBorders = faces.toArray()
+        val mask = Mat.zeros(input.size(), input.type())
+
         faceBorders.forEach { rect ->
-            val faceBorder = input.submat(rect)
-            gammaFilter(faceBorder, 1.0, 20.0)
+            val faceRegion = mask.submat(rect)
+            faceRegion.setTo(Scalar(255.0, 255.0, 255.0))
         }
+
+        val filteredImage = input.clone()
+        gammaFilter(filteredImage, mask,1.0, 20.0)
+
+        filteredImage.copyTo(input, mask)
 
         return input
     }
 
-    fun gammaFilter(image: Mat, alpha: Double, beta: Double) {
+    fun gammaFilter(image: Mat, mask: Mat, alpha: Double, beta: Double) {
         for (i in 0 until image.rows()) {
             for (j in 0 until image.cols()) {
-                val pixel = image.get(i, j)
-                val newPixel = DoubleArray(pixel.size)
+                if (mask.get(i, j)[0] > 0) {
+                    val pixel = image.get(i, j)
+                    val newPixel = DoubleArray(pixel.size)
 
-                for (k in pixel.indices) {
-                    newPixel[k] = pixel[k] * alpha + beta
-                    newPixel[k] = newPixel[k].coerceIn(0.0, 255.0)
+                    for (k in pixel.indices) {
+                        newPixel[k] = (pixel[k] * alpha + beta).coerceIn(0.0, 255.0)
+                    }
+
+                    newPixel[0] = (newPixel[0] * 1.2).coerceIn(0.0, 255.0)
+                    newPixel[1] = (newPixel[1] * 0.8).coerceIn(0.0, 255.0)
+                    newPixel[2] = (newPixel[2] * 0.8).coerceIn(0.0, 255.0)
+
+                    image.put(i, j, *newPixel)
                 }
-
-                image.put(i, j, *newPixel)
             }
         }
     }
+
 
 
     private fun saveImageToGallery(bitmap: Bitmap) {
