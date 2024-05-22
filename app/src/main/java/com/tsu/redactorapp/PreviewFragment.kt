@@ -68,6 +68,10 @@ class PreviewFragment : Fragment(), OnItemClickListener {
         currentView?.transitionName ="shared_element_two"
         when(position)
         {
+            0 -> currentView?.let {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.fragmentContainerView2, RotationFragment.newInstance())?.commit()
+            }
             1 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, FilterFragment.newInstance())?.commit()
