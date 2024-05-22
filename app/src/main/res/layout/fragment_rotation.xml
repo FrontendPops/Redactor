@@ -85,7 +85,7 @@
         android:id="@+id/imageView3"
         android:layout_width="0dp"
         android:layout_height="@dimen/_300sdp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:layout_marginVertical="@dimen/_20sdp"
         app:layout_constraintBottom_toTopOf="@id/seekBarForImage"
         app:layout_constraintEnd_toEndOf="parent"
