@@ -40,5 +40,17 @@
             android:text="@string/main_activity_cube_button"
             android:textColor="@color/primary"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <Button
+            android:id="@+id/buttonSplines"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:elevation="8dp"
+            android:text="@string/main_activity_spline_button"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,5 +41,9 @@ class MainActivity : ComponentActivity() {
             }
             pickImageLauncher.launch(pickerIntent)
         }
+        binding.buttonSplines.setOnClickListener {
+            val intent = Intent(this, SplineActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

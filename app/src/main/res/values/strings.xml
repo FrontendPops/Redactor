@@ -1,6 +1,7 @@
 <resources>
     <string name="main_activity_filters_button">edit photo</string>
     <string name="main_activity_cube_button">cube</string>
+    <string name="main_activity_spline_button">spline</string>
     <string name="app_name">RedactorApp</string>
     <string name="title">apply filters</string>
     <string name="title_dashboard">Dashboard</string>
