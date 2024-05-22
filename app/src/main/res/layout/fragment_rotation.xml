@@ -1,60 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PreviewFragment"
     android:background="@color/surface"
-    >
+    tools:context=".PreviewFragment">
 
 
     <SeekBar
         android:id="@+id/seekBarForImage"
-        android:layout_width="180dp"
-        android:layout_height="10dp"
-        android:layout_marginLeft="110dp"
-        android:layout_marginTop="530dp"
-        android:layout_marginRight="120dp"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="wrap_content"
         android:max="100"
         android:progress="50"
         android:progressDrawable="@drawable/track_seek_bar"
-        android:thumb="@drawable/custom_seek_bar" />
-    />
+        android:thumb="@drawable/custom_seek_bar"
+        app:layout_constraintBottom_toTopOf="@id/buttonLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginVertical="@dimen/_15sdp"/>
+
 
     <LinearLayout
+        android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_marginTop="590dp"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal">
+        android:layout_height="@dimen/_56sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center">
 
         <Button
             android:id="@+id/buttonLeft"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/roundedstyle"
-            app:backgroundTint="@color/surfaceContainerHigh"
             android:elevation="8dp"
-            android:textColor="@color/primary"
+            android:text="turn left"
+            android:layout_marginHorizontal="@dimen/_28sdp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="@dimen/_20sdp"
-            android:text="turn left"/>
+            android:textColor="@color/primary"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            tools:ignore="Suspicious0dp" />
 
         <Button
             android:id="@+id/buttonRight"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/roundedstyle"
-            app:backgroundTint="@color/surfaceContainerHigh"
             android:elevation="8dp"
-            android:textColor="@color/primary"
+            android:text="turn right"
+            android:layout_marginHorizontal="@dimen/_28sdp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="@dimen/_20sdp"
-            android:text="turn right" />
+            android:textColor="@color/primary"
+            app:backgroundTint="@color/surfaceContainerHigh"
+
+            tools:ignore="Suspicious0dp" />
     </LinearLayout>
+
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imagePreview"
@@ -62,7 +65,7 @@
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@id/imageRecyclerView"
+        app:layout_constraintBottom_toTopOf="@+id/seekBarForImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader"
@@ -70,27 +73,62 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="350dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginHorizontal="25dp"
-        android:scaleType="fitCenter"/>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
-
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_300sdp"
+        android:scaleType="fitCenter"
+        android:layout_marginVertical="@dimen/_20sdp"
+        app:layout_constraintBottom_toTopOf="@id/seekBarForImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader" />
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="350dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginHorizontal="25dp"
-        android:scaleType="centerCrop"/>
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_300sdp"
+        android:scaleType="centerCrop"
+        android:layout_marginVertical="@dimen/_20sdp"
+        app:layout_constraintBottom_toTopOf="@id/seekBarForImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader"/>
+
+    <LinearLayout
+        android:id="@+id/layoutHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:padding="@dimen/_8sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageBack"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:elevation="8dp"
+            android:src="@drawable/baseline_arrow_circle_left_24"
+            android:tint="@color/secondary" />
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageSave"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:elevation="8dp"
+            android:src="@drawable/baseline_check_circle_24"
+            android:tint="@color/secondary" />
+
+    </LinearLayout>
 
 
-</FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

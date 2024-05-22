@@ -11,12 +11,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class RotationFragment : Fragment() {
+    lateinit var currentBitmap: Bitmap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -41,19 +43,18 @@ class RotationFragment : Fragment() {
         rotateButtonLeft.setOnClickListener {
             rotatedImageView.visibility = View.INVISIBLE
             imagePreview.visibility = View.VISIBLE
-            rotatitonLeft(imagePreview)
+            currentBitmap = rotationLeft(imagePreview)
         }
 
         val rotateButtonRight = view.findViewById<Button>(R.id.buttonRight)
         rotateButtonRight.setOnClickListener {
             rotatedImageView.visibility = View.INVISIBLE
             imagePreview.visibility = View.VISIBLE
-            rotatitonRight(imagePreview)
+            currentBitmap = rotationRight(imagePreview)
         }
 
+        setOnClickListeners()
         val seekBar = view.findViewById<SeekBar>(R.id.seekBarForImage)
-        //var angle = 0f
-
         var previousProgress = seekBar.progress
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -69,7 +70,14 @@ class RotationFragment : Fragment() {
                 previousProgress = progress
                 imagePreview.visibility = View.INVISIBLE
                 rotatedImageView.visibility = View.VISIBLE
-                rotationAnyAngle(rotatedImageView, image!!, angle)
+                if (progress == 0 || progress == 100 || progress == 50) {
+                    if (image != null) {
+                        currentBitmap = image
+                    }
+                    rotatedImageView.setImageBitmap(image)
+                } else {
+                    currentBitmap = rotationAnyAngle(rotatedImageView, image!!, angle)
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -82,23 +90,25 @@ class RotationFragment : Fragment() {
         fun newInstance() = RotationFragment()
     }
 
-    fun rotatitonLeft(imagePreview: AppCompatImageView) {
+    private fun rotationLeft(imagePreview: AppCompatImageView): Bitmap {
         val bitmapDrawable = imagePreview.drawable
         val bitmap = (bitmapDrawable as BitmapDrawable).bitmap
 
-        val width = bitmap.width
-        val height = bitmap.height
-        val pixels = IntArray(width * height)
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val width = (bitmap.width * 1.2).toInt()
+        val height = (bitmap.height * 1.2).toInt()
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
 
-        // углы после поворота
+        val pixels = IntArray(width * height)
+        scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        // Углы после поворота
         val radians = Math.PI / 2
         val cosTheta = cos(radians)
         val sinTheta = sin(radians)
         val newWidth = (height * abs(sinTheta) + width * abs(cosTheta)).toInt()
         val newHeight = (height * abs(cosTheta) + width * abs(sinTheta)).toInt()
 
-        // центр нового изображения
+        // Центр нового изображения
         val centerX = newWidth / 2f
         val centerY = newHeight / 2f
 
@@ -106,7 +116,7 @@ class RotationFragment : Fragment() {
 
         for (y in 0 until newHeight) {
             for (x in 0 until newWidth) {
-                // исходные координаты пикселя после поворота
+                // Исходные координаты пикселя после поворота
                 val newX = cosTheta * (centerX - x) + sinTheta * (centerY - y) + width / 2
                 val newY = -sinTheta * (centerX - x) + cosTheta * (centerY - y) + height / 2
 
@@ -124,23 +134,28 @@ class RotationFragment : Fragment() {
         val rotatedBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888)
         rotatedBitmap.setPixels(newPixels, 0, newWidth, 0, 0, newWidth, newHeight)
         imagePreview.setImageBitmap(rotatedBitmap)
+        return rotatedBitmap
     }
 
-    fun rotatitonRight(imagePreview: AppCompatImageView) {
+    private fun rotationRight(imagePreview: AppCompatImageView): Bitmap {
         val bitmapDrawable = imagePreview.drawable
         val bitmap = (bitmapDrawable as BitmapDrawable).bitmap
 
-        val width = bitmap.width
-        val height = bitmap.height
-        val pixels = IntArray(width * height)
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val width = (bitmap.width * 1.2).toInt()
+        val height = (bitmap.height * 1.2).toInt()
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
 
+        val pixels = IntArray(width * height)
+        scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        // Углы после поворота
         val radians = Math.PI / 2
         val cosTheta = cos(radians)
         val sinTheta = sin(radians)
         val newWidth = (height * abs(sinTheta) + width * abs(cosTheta)).toInt()
         val newHeight = (height * abs(cosTheta) + width * abs(sinTheta)).toInt()
 
+        // Центр нового изображения
         val centerX = newWidth / 2f
         val centerY = newHeight / 2f
 
@@ -148,9 +163,11 @@ class RotationFragment : Fragment() {
 
         for (y in 0 until newHeight) {
             for (x in 0 until newWidth) {
+                // Исходные координаты пикселя после поворота
                 val newX = cosTheta * (x - centerX) + sinTheta * (y - centerY) + width / 2
                 val newY = -sinTheta * (x - centerX) + cosTheta * (y - centerY) + height / 2
 
+                // Округление исходных координат
                 val roundedX = newX.roundToInt()
                 val roundedY = newY.roundToInt()
 
@@ -164,16 +181,19 @@ class RotationFragment : Fragment() {
         val rotatedBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888)
         rotatedBitmap.setPixels(newPixels, 0, newWidth, 0, 0, newWidth, newHeight)
         imagePreview.setImageBitmap(rotatedBitmap)
+        return rotatedBitmap
     }
 
-    fun rotationAnyAngle(imageView: AppCompatImageView, originalBitmap: Bitmap, angle: Float) {
+    private fun rotationAnyAngle(imageView: AppCompatImageView, originalBitmap: Bitmap, angle: Float): Bitmap {
         val imageViewWidth = imageView.width.toFloat()
         val imageViewHeight = imageView.height.toFloat()
 
-        val width = originalBitmap.width
-        val height = originalBitmap.height
+        val width = (originalBitmap.width * 1.4).toInt()
+        val height = (originalBitmap.height * 1.4).toInt()
+        val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, true)
+
         val pixels = IntArray(width * height)
-        originalBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
         val radians = Math.toRadians(angle.toDouble())
         val cosTheta = Math.cos(radians)
@@ -209,5 +229,22 @@ class RotationFragment : Fragment() {
         rotatedBitmap.setPixels(newPixels, 0, imageViewWidth.toInt(), 0, 0, imageViewWidth.toInt(), imageViewHeight.toInt())
 
         imageView.setImageBitmap(rotatedBitmap)
+        return rotatedBitmap
+    }
+
+    private fun setOnClickListeners() {
+        val buttonBack = view?.findViewById<AppCompatImageView>(R.id.imageBack)
+        val buttonApply = view?.findViewById<AppCompatImageView>(R.id.imageSave)
+        val imagePreview = view?.findViewById<AppCompatImageView>(R.id.imageView3)
+        buttonBack?.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
+        }
+        buttonApply?.setOnClickListener {
+            val activity: EditImageActivity? = activity as EditImageActivity?
+            activity!!.setBitMap(currentBitmap)
+            activity.supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView2, PreviewFragment.newInstance()).commit()
+        }
     }
 }
