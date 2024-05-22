@@ -1,8 +1,6 @@
 package com.tsu.redactorapp
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -15,90 +13,57 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.drawable.toBitmap
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [scale.newInstance] factory method to
- * create an instance of this fragment.
- */
+@Suppress("DEPRECATION")
 class ScaleFragment : Fragment() {
-
     private lateinit var imageView: ImageView
+    private lateinit var root: View
     private var originalBitmap: Bitmap? = null
     private var scaledBitmap: Bitmap? = null
-
-    private lateinit var getImageFromGallery: ActivityResultLauncher<Intent>
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_scale, container, false)
-
-        imageView = root.findViewById(R.id.imageView2)
-        val buttonLoadImage: Button = root.findViewById(R.id.button)
-        val buttonScaleImage: Button = root.findViewById(R.id.button2)
-        val buttonScaleImageTrilinear: Button = root.findViewById(R.id.button4)
+        root = inflater.inflate(R.layout.fragment_scale, container, false)
+        val activity: EditImageActivity? = activity as EditImageActivity?
+        originalBitmap = activity?.getBitMap()!!
+        imageView = root.findViewById(R.id.imageViewPreview)
+        imageView.setImageBitmap(originalBitmap)
+        val buttonScaleImage: Button = root.findViewById(R.id.scaleButton)
         val scaleFactors: EditText = root.findViewById(R.id.scaleFactorText)
-
-        buttonLoadImage.setOnClickListener {
-            openGalleryForImage()
-        }
+        setListeners()
 
         buttonScaleImage.setOnClickListener {
             val scaleFactorText = scaleFactors.text.toString()
             if (scaleFactorText.isNotEmpty()) {
-                val scaleFactor = scaleFactorText.toFloat()
-                scaleImage(scaleFactor)
+                val scaleFactor : Float? = scaleFactorText.toFloatOrNull()
+
+                if (scaleFactor!! > 1f) {
+                    scaleImage(scaleFactor)
+                }
+                else {
+                    scaleImageTrilinear(scaleFactor)
+                }
+
             }
         }
-
-        buttonScaleImageTrilinear.setOnClickListener {
-            val scaleFactorText = scaleFactors.text.toString()
-            if (scaleFactorText.isNotEmpty()) {
-                val scaleFactor = scaleFactorText.toFloat()
-                scaleImageTrilinear(scaleFactor)
-            }
-        }
-
-
-        registerGetImageFromGallery()
-
         return root
     }
-
-    private fun registerGetImageFromGallery() {
-        getImageFromGallery = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                val selectedImage = result.data?.data
-                imageView.setImageURI(selectedImage)
-                originalBitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, selectedImage)
-            }
-        }
-    }
-
-    private fun openGalleryForImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        getImageFromGallery.launch(intent)
-    }
-
     @SuppressLint("SuspiciousIndentation")
     private fun scaleImage(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
-            val scaledBitmap = scaleBitmap(bitmap, scaleFactor)
-//            imageView.setImageBitmap(scaledBitmap)
-              saveImageToGallery(scaledBitmap)
+            scaledBitmap = scaleBitmap(bitmap, scaleFactor)
+            imageView.setImageBitmap(scaledBitmap)
         }
     }
-
     private fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
         val width = (bitmap.width * scaleFactor).toInt()
         val height = (bitmap.height * scaleFactor).toInt()
@@ -136,13 +101,11 @@ class ScaleFragment : Fragment() {
         //bitmap.recycle()
         return scaledBitmap
     }
-
     private fun bilinearInterpolation(pixel1: Int, pixel2: Int, pixel3: Int, pixel4: Int, dx: Float, dy: Float): Int {
         val pixels1 = (pixel1 * (1 - dx) + pixel2 * dx).toInt()
         val pixels2 = (pixel3 * (1 - dx) + pixel4 * dx).toInt()
         return ((pixels1 * (1 - dy) + pixels2 * dy).toInt())
     }
-
     private fun scaleImageTrilinear(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
             val width = bitmap.width
@@ -210,11 +173,8 @@ class ScaleFragment : Fragment() {
             }
             scaledBitmap!!.setPixels(pixels, 0, scaledWidth, 0, 0, scaledWidth, scaledHeight)
             imageView.setImageBitmap(scaledBitmap)
-            saveImageToGallery(scaledBitmap!!)
         }
     }
-
-
     private fun trilinearInterpolation(
         pixel1: Int, pixel2: Int, pixel3: Int, pixel4: Int,
         pixel5: Int, pixel6: Int, pixel7: Int, pixel8: Int,
@@ -230,11 +190,9 @@ class ScaleFragment : Fragment() {
 
         return linearInterpolation(pixels3, pixels6, dx2)
     }
-
     private fun linearInterpolation(pixel1: Int, pixel2: Int, ratio: Float): Int {
         return (pixel1 * (1 - ratio) + pixel2 * ratio).toInt()
     }
-
     private fun applyGaussianBlur(bitmap: Bitmap, horizontalRadius: Int, verticalRadius: Int): Bitmap {
         val horizontalRadiuses = (horizontalRadius * 3)
         val verticalRadiuses = (verticalRadius * 2)
@@ -295,8 +253,6 @@ class ScaleFragment : Fragment() {
 
         return finalBitmap
     }
-
-
     private fun calculatingGaussianWeights(radius: Int): Array<DoubleArray> {
         val size = 2 * radius + 1
         val weights = Array(size) { DoubleArray(size) }
@@ -321,18 +277,19 @@ class ScaleFragment : Fragment() {
         }
         return weights
     }
-
-    private fun saveImageToGallery(bitmap: Bitmap) {
-        val savedImageURL = MediaStore.Images.Media.insertImage(
-            requireContext().contentResolver,
-            bitmap,
-            "Новое изображение",
-            "Сделано алгоритмом"
-        )
-        if (savedImageURL != null) {
-            Toast.makeText(requireContext(), "Изображение сохранено в галерею", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Изображение не сохранено в галерею", Toast.LENGTH_SHORT).show()
+    @Suppress("DEPRECATION")
+    private fun setListeners() {
+        val imageBack = root.findViewById<AppCompatImageView>(R.id.imageBackScale)
+        val imageSave = root.findViewById<AppCompatImageView>(R.id.imageSaveScale)
+        imageBack?.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
+        }
+        imageSave?.setOnClickListener {
+            val activity: EditImageActivity? = activity as EditImageActivity?
+            scaledBitmap?.let { it1 -> activity!!.setBitMap(it1) }
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }
     }
 

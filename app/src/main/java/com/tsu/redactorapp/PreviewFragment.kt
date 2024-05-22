@@ -33,10 +33,8 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setListeners()
         val fragmentFilter = FilterFragment()
-        fragmentFilter.sharedElementEnterTransition = MaterialContainerTransform()
-        exitTransition = Hold()
+        setListeners()
         val imageBack = view.findViewById<AppCompatImageView>(R.id.imageBack)
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
