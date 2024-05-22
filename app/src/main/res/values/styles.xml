@@ -1,0 +1,9 @@
+<resources>
+    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <!-- Change these dimensions to fit your needs -->
+        <item name="android:popupBackground">@drawable/custom_popup_background</item>
+        <item name="android:dropDownWidth">200dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>
