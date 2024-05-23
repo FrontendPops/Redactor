@@ -7,15 +7,48 @@
     android:layout_height="match_parent"
     tools:context=".PreviewFragment">
 
+    <LinearLayout
+        android:id="@+id/layoutHeaderFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:padding="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageBackFilters"
+            android:elevation="8dp"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:src="@drawable/baseline_arrow_circle_left_24"
+            android:tint="@color/secondary" />
+        <View
+            android:layout_height="0dp"
+            android:layout_width="0dip"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageSaveFilters"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:elevation="8dp"
+            android:src="@drawable/baseline_check_circle_24"
+            android:tint="@color/secondary" />
+
+    </LinearLayout>
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imagePreview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintBottom_toTopOf="@+id/imageRecyclerViewFilters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/layoutHeaderFilters" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRecyclerViewFilters"
@@ -23,60 +56,11 @@
         android:layout_height="70dp"
         android:background="@color/surface"
         android:visibility="visible"
-        android:layout_marginBottom="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_15sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:padding="@dimen/_2sdp"
-        android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/_8sdp"
-        app:layout_constraintBottom_toTopOf="@+id/imageRecyclerViewFilters"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/buttonCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/roundedstyle"
-            app:backgroundTint="@color/surfaceContainerHigh"
-            android:elevation="8dp"
-            android:textColor="@color/primary"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_weight="1"
-            android:text="cancel"
-            android:layout_marginHorizontal="@dimen/_30sdp"/>
-
-        <Button
-            android:id="@+id/buttonApply"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/roundedstyle"
-            app:backgroundTint="@color/surfaceContainerHigh"
-            android:elevation="8dp"
-            android:textColor="@color/primary"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_weight="1"
-            android:text="apply"
-            android:layout_marginHorizontal="@dimen/_30sdp"/>
-
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:visibility="invisible"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imagePreview"
-        tools:layout_editor_absoluteX="172dp"
-        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

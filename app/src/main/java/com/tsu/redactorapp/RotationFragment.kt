@@ -36,6 +36,7 @@ class RotationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
+        currentBitmap = image!!
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imageView2)
         val rotatedImageView = view.findViewById<AppCompatImageView>(R.id.imageView3)
         val angleTextView = view.findViewById<AppCompatTextView>(R.id.textView)

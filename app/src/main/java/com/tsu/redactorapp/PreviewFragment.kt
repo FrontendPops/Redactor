@@ -80,6 +80,11 @@ class PreviewFragment : Fragment(), OnItemClickListener {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, ScaleFragment.newInstance())?.commit()
             }
+            4 -> currentView?.let {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())?.commit()
+            }
+
         }
     }
     companion object {

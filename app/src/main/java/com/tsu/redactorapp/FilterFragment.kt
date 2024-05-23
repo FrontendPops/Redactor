@@ -395,8 +395,8 @@ class FilterFragment : Fragment(), OnItemClickListener {
     }
 
     private fun setFilterListeners(imagePreview : AppCompatImageView, image : Bitmap) {
-        val buttonCancel = view?.findViewById<Button>(R.id.buttonCancel)
-        val buttonApply = view?.findViewById<Button>(R.id.buttonApply)
+        val buttonCancel = view?.findViewById<AppCompatImageView>(R.id.imageBackFilters)
+        val buttonApply = view?.findViewById<AppCompatImageView>(R.id.imageSaveFilters)
 
         buttonCancel?.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
