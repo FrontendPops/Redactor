@@ -6,46 +6,69 @@
     android:layout_height="match_parent"
     tools:context=".RecognitionFragment">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="142dp"
-        android:layout_height="48dp"
-        android:text="@string/button_loading_image2"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/scaleFactorText"
-        tools:ignore="MissingConstraints,VisualLintButtonSize" />
+    <LinearLayout
+        android:id="@+id/layoutHeaderScale"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:padding="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="142dp"
-        android:layout_height="48dp"
-        android:text="@string/button_launch_image_recognition"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/button"
-        tools:ignore="VisualLintButtonSize,TextSizeCheck" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageBackRecognition"
+            android:elevation="8dp"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:src="@drawable/baseline_arrow_circle_left_24"
+            android:tint="@color/secondary" />
+        <View
+            android:layout_height="0dp"
+            android:layout_width="0dip"
+            android:layout_weight="1" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageSaveRecognition"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:elevation="8dp"
+            android:src="@drawable/baseline_check_circle_24"
+            android:tint="@color/secondary" />
+
+    </LinearLayout>
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="290dp"
-        android:layout_height="295dp"
+        android:id="@+id/imageViewPreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeaderScale"
+        app:layout_constraintBottom_toTopOf="@id/ButtonsLinearLayout" />
+    <LinearLayout
+        android:id="@+id/ButtonsLinearLayout"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:padding="@dimen/_8sdp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck"
-        tools:layout_editor_absoluteY="78dp"
-        tools:src="@tools:sample/avatars" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <EditText
-        android:id="@+id/scaleFactorText"
-        android:layout_width="216dp"
-        android:layout_height="48dp"
-        android:autofillHints=""
-        android:ems="10"
-        android:hint="@string/button_scale"
-        android:inputType="numberDecimal"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
-        android:layout_marginTop="50dp" />
+        <Button
+            android:id="@+id/recognizeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/roundedstyle"
+            app:backgroundTint="@color/surfaceContainerHigh"
+            android:elevation="8dp"
+            android:textColor="@color/primary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="@dimen/_20sdp"
+            android:text="@string/button_launch_image_recognition" />
+    </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

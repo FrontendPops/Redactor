@@ -17,6 +17,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatImageView
+import com.google.android.material.snackbar.Snackbar
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.Mat
@@ -29,6 +31,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.*
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -36,8 +39,9 @@ private const val ARG_PARAM2 = "param2"
 class RecognitionFragment : Fragment() {
 
     private lateinit var imageView: ImageView
+    private lateinit var root: View
     private var originalBitmap: Bitmap? = null
-    private var scaledBitmap: Bitmap? = null
+    private var exportBitmap: Bitmap? = null
 
     private lateinit var getImageFromGallery: ActivityResultLauncher<Intent>
 
@@ -46,59 +50,49 @@ class RecognitionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_face_recognition, container, false)
-
-        imageView = root.findViewById(R.id.imageView2)
-        val buttonRecognition: Button = root.findViewById(R.id.button2)
-        val buttonLoadImage: Button = root.findViewById(R.id.button)
-        val scaleFactors: EditText = root.findViewById(R.id.scaleFactorText)
-
-        buttonLoadImage.setOnClickListener {
-            openGalleryForImage()
-        }
+        root = inflater.inflate(R.layout.fragment_face_recognition, container, false)
+        val activity: EditImageActivity? = activity as EditImageActivity?
+        originalBitmap = activity?.getBitMap()!!
+        exportBitmap = originalBitmap
+        imageView = root.findViewById(R.id.imageViewPreview)
+        imageView.setImageBitmap(originalBitmap)
+        val buttonRecognition: Button = root.findViewById(R.id.recognizeButton)
+        setListeners()
 
         buttonRecognition.setOnClickListener {
-            detectFaces()
+            GlobalScope.launch {
+                detectFaces()
+            }
         }
-
-        registerGetImageFromGallery()
 
         return root
     }
 
-    private fun registerGetImageFromGallery() {
-        getImageFromGallery = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                val selectedImage = result.data?.data
-                imageView.setImageURI(selectedImage)
-                originalBitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, selectedImage)
-            }
-        }
-    }
+    private val coroutineScope = CoroutineScope(Dispatchers.Main) // CoroutineScope tied to the Main dispatcher
 
-    private fun openGalleryForImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        getImageFromGallery.launch(intent)
-    }
-
-    private fun detectFaces() {
+     private suspend fun detectFaces() {
         if (originalBitmap == null) {
-            Toast.makeText(requireContext(), "Загрузи изображение", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val mat = Mat()
-        Utils.bitmapToMat(originalBitmap, mat)
-        val resultMat = faceRecognition(mat, requireContext())
+        // Cancel any existing coroutine to avoid overlapping
+        coroutineScope.coroutineContext.cancelChildren()
 
-        val resultBitmap = Bitmap.createBitmap(resultMat.cols(), resultMat.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(resultMat, resultBitmap)
+        coroutineScope.launch {
+            val mat = Mat()
+            Utils.bitmapToMat(originalBitmap, mat)
+            val resultMat = faceRecognition(mat, requireContext())
 
-        imageView.setImageBitmap(resultBitmap)
-        saveImageToGallery(resultBitmap)
+            val resultBitmap = Bitmap.createBitmap(resultMat.cols(), resultMat.rows(), Bitmap.Config.ARGB_8888)
+            Utils.matToBitmap(resultMat, resultBitmap)
+            exportBitmap = resultBitmap
+            imageView.setImageBitmap(resultBitmap)
+
+            Snackbar.make(root , "Recognized", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
-    private fun faceRecognition(input: Mat, context: Context): Mat {
+    private suspend fun faceRecognition(input: Mat, context: Context): Mat = withContext(Dispatchers.IO) {
         val cascadeFilesOpenCv = listOf(
             "haarcascade_frontalface_alt2.xml",
             "haarcascade_frontalface_alt.xml",
@@ -123,7 +117,7 @@ class RecognitionFragment : Fragment() {
         for (cascadeFile in cascadeFiles) {
             val faceCascade = CascadeClassifier(cascadeFile.absolutePath)
             if (faceCascade.empty()) {
-                Log.e("OpenCV", "Ошибка загрузки ${cascadeFile.absolutePath}")
+                Log.e("OpenCV", "Failed to load ${cascadeFile.absolutePath}")
                 continue
             }
 
@@ -141,11 +135,11 @@ class RecognitionFragment : Fragment() {
         }
 
         val filteredImage = input.clone()
-        gammaFilter(filteredImage, mask,1.0, 20.0)
+        gammaFilter(filteredImage, mask, 1.0, 20.0)
 
         filteredImage.copyTo(input, mask)
 
-        return input
+        return@withContext input
     }
 
     fun gammaFilter(image: Mat, mask: Mat, alpha: Double, beta: Double) {
@@ -169,22 +163,25 @@ class RecognitionFragment : Fragment() {
         }
     }
 
-
-
-    private fun saveImageToGallery(bitmap: Bitmap) {
-        val savedImageURL = MediaStore.Images.Media.insertImage(
-            requireContext().contentResolver,
-            bitmap,
-            "Новое изображение",
-            "Сделано алгоритмом"
-        )
-        if (savedImageURL != null) {
-            Toast.makeText(requireContext(), "Изображение сохранено в галерею", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Изображение не сохранено в галерею", Toast.LENGTH_SHORT).show()
+    @Suppress("DEPRECATION")
+    private fun setListeners() {
+        val imageBack = root.findViewById<AppCompatImageView>(R.id.imageBackRecognition)
+        val imageSave = root.findViewById<AppCompatImageView>(R.id.imageSaveRecognition)
+        imageBack?.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
+        }
+        imageSave?.setOnClickListener {
+            val activity: EditImageActivity? = activity as EditImageActivity?
+            exportBitmap?.let { it1 -> activity!!.setBitMap(it1) }
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineScope.cancel() // Cancel the CoroutineScope when the activity or fragment is destroyed
+    }
     companion object {
         @JvmStatic
         fun newInstance() = RecognitionFragment()

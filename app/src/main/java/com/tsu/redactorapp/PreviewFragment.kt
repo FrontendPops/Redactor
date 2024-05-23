@@ -33,17 +33,15 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setListeners()
         val fragmentFilter = FilterFragment()
-        fragmentFilter.sharedElementEnterTransition = MaterialContainerTransform()
-        exitTransition = Hold()
+        setListeners()
         val imageBack = view.findViewById<AppCompatImageView>(R.id.imageBack)
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imagePreview)
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
-        val imageRV = view.findViewById<RecyclerView>(R.id.imageRecyclerView)
+        val imageRV = view.findViewById<RecyclerView>(R.id.imageRecyclerViewPreview)
 
         imageRV.layoutManager = CarouselLayoutManager(UncontainedCarouselStrategy())
 
@@ -65,19 +63,21 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     @SuppressLint("WrongViewCast")
     override fun onItemClick(position: Int) {
         val imageAdapter = ImageAdapter(this)
-        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerView)
+        val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewPreview)
         val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
-        currentView?.transitionName ="shared_element_two"
+
         when(position)
         {
+
             1 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, FilterFragment.newInstance())?.commit()
             }
-            3 -> currentView?.let {
+            4 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())?.commit()
             }
+
         }
     }
     companion object {
