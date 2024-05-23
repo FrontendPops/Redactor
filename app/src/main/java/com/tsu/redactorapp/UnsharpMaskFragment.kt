@@ -15,6 +15,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatImageView
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,94 +27,80 @@ private const val ARG_PARAM2 = "param2"
 class UnsharpMaskFragment : Fragment() {
 
     private lateinit var imageView: ImageView
+    private lateinit var root: View
     private var originalBitmap: Bitmap? = null
-    private var scaledBitmap: Bitmap? = null
-
-    private lateinit var getImageFromGallery: ActivityResultLauncher<Intent>
-
+    private var exportBitmap: Bitmap? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_unsharpmask, container, false)
+        root = inflater.inflate(R.layout.fragment_unsharpmask, container, false)
+        val activity: EditImageActivity? = activity as EditImageActivity?
+        originalBitmap = activity?.getBitMap()!!
+        exportBitmap = originalBitmap
+        imageView = root.findViewById(R.id.imageViewPreview)
+        imageView.setImageBitmap(originalBitmap)
 
-        imageView = root.findViewById(R.id.imageView2)
-        val buttonLoadImage: Button = root.findViewById(R.id.button)
-        val buttonUnSharpMask: Button = root.findViewById(R.id.button2)
-
-        buttonLoadImage.setOnClickListener {
-            openGalleryForImage()
-        }
+        val buttonUnSharpMask: Button = root.findViewById(R.id.maskButton)
 
         buttonUnSharpMask.setOnClickListener {
-            unsharpMask(15, 200);
+            GlobalScope.launch {
+                unsharpMask(15, 200);
+            }
         }
-
-
-
-        registerGetImageFromGallery()
-
+        setListeners()
         return root
     }
 
-    private fun registerGetImageFromGallery() {
-        getImageFromGallery = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                val selectedImage = result.data?.data
-                imageView.setImageURI(selectedImage)
-                originalBitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, selectedImage)
+    private val coroutineScope = CoroutineScope(Dispatchers.Main) // CoroutineScope tied to the Main dispatcher
+
+    private suspend fun unsharpMask(radius: Int, amount: Int) {
+        if (originalBitmap == null) {
+            return
+        }
+
+        // Cancel any existing coroutine to avoid overlapping
+        coroutineScope.coroutineContext.cancelChildren()
+
+        coroutineScope.launch {
+            originalBitmap?.let { bitmap ->
+                val width = bitmap.width
+                val height = bitmap.height
+                val blurredBitmap = GaussianBlur(bitmap, radius)
+                val unsharpMaskBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+                val pixels = IntArray(width * height)
+                val blurredPixels = IntArray(width * height)
+                bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+                blurredBitmap.getPixels(blurredPixels, 0, width, 0, 0, width, height)
+
+                val amountOver = amount / 256.0
+
+                for (i in pixels.indices) {
+                    val pixel = pixels[i]
+                    val blurredPixel = blurredPixels[i]
+
+                    val diffRed = ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
+                    val diffGreen = ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
+                    val diffBlue = ((pixel and 0xFF) - (blurredPixel and 0xFF)) * amountOver
+
+                    val newRed = ((pixel shr 16 and 0xFF) + diffRed).coerceIn(0.0, 255.0).toInt()
+                    val newGreen = ((pixel shr 8 and 0xFF) + diffGreen).coerceIn(0.0, 255.0).toInt()
+                    val newBlue = ((pixel and 0xFF) + diffBlue).coerceIn(0.0, 255.0).toInt()
+
+                    pixels[i] = (0xFF shl 24) or (newRed shl 16) or (newGreen shl 8) or newBlue
+                }
+
+                unsharpMaskBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+
+                exportBitmap = unsharpMaskBitmap
+
+                imageView.setImageBitmap(unsharpMaskBitmap)
             }
+            Snackbar.make(root , "Masked", Snackbar.LENGTH_SHORT).show()
         }
     }
-
-    private fun openGalleryForImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        getImageFromGallery.launch(intent)
-    }
-
-        private fun unsharpMask(radius: Int, amount: Int) {
-        originalBitmap?.let { bitmap ->
-            val width = bitmap.width
-            val height = bitmap.height
-            val blurredBitmap = GaussianBlur(bitmap, radius)
-            val unsharpMaskBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-            val pixels = IntArray(width * height)
-            val blurredPixels = IntArray(width * height)
-            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
-            blurredBitmap.getPixels(blurredPixels, 0, width, 0, 0, width, height)
-
-            val amountOver = amount / 256.0
-
-            for (i in pixels.indices) {
-                val pixel = pixels[i]
-                val blurredPixel = blurredPixels[i]
-
-                val diffRed = ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
-                val diffGreen = ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
-                val diffBlue = ((pixel and 0xFF) - (blurredPixel and 0xFF)) * amountOver
-
-                val newRed = ((pixel shr 16 and 0xFF) + diffRed).coerceIn(0.0, 255.0).toInt()
-                val newGreen = ((pixel shr 8 and 0xFF) + diffGreen).coerceIn(0.0, 255.0).toInt()
-                val newBlue = ((pixel and 0xFF) + diffBlue).coerceIn(0.0, 255.0).toInt()
-
-                pixels[i] = (0xFF shl 24) or (newRed shl 16) or (newGreen shl 8) or newBlue
-            }
-
-            unsharpMaskBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-
-            scaledBitmap = unsharpMaskBitmap
-
-            imageView.setImageBitmap(unsharpMaskBitmap)
-
-            saveImageToGallery(unsharpMaskBitmap)
-        }
-    }
-
-
-
-
     private fun GaussianBlur(bitmap: Bitmap, radius: Int): Bitmap {
         val weights = calculateGaussianWeights(radius)
         val tempBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
@@ -169,8 +158,6 @@ class UnsharpMaskFragment : Fragment() {
 
         return finalBitmap
     }
-
-
     private fun calculateGaussianWeights(radius: Int): Array<DoubleArray> {
         val sigma = radius / 3.0
         val constant = 1 / (2 * Math.PI * sigma * sigma)
@@ -197,20 +184,25 @@ class UnsharpMaskFragment : Fragment() {
         return weights
     }
 
-    private fun saveImageToGallery(bitmap: Bitmap) {
-        val savedImageURL = MediaStore.Images.Media.insertImage(
-            requireContext().contentResolver,
-            bitmap,
-            "Новое изображение",
-            "Сделано алгоритмом"
-        )
-        if (savedImageURL != null) {
-            Toast.makeText(requireContext(), "Изображение сохранено в галерею", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Изображение не сохранено в галерею", Toast.LENGTH_SHORT).show()
+    @Suppress("DEPRECATION")
+    private fun setListeners() {
+        val imageBack = root.findViewById<AppCompatImageView>(R.id.imageBackMask)
+        val imageSave = root.findViewById<AppCompatImageView>(R.id.imageSaveMask)
+        imageBack?.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
+        }
+        imageSave?.setOnClickListener {
+            val activity: EditImageActivity? = activity as EditImageActivity?
+            exportBitmap?.let { it1 -> activity!!.setBitMap(it1) }
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineScope.cancel() // Cancel the CoroutineScope when the activity or fragment is destroyed
+    }
     companion object {
         @JvmStatic
         fun newInstance() = UnsharpMaskFragment()
