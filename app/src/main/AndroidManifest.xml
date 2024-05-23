@@ -24,6 +24,9 @@
         android:theme="@style/Theme.RedactorApp"
         tools:targetApi="31">
         <activity
+            android:name=".CubeActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplineActivity"
             android:exported="false" />
         <activity
@@ -41,7 +44,7 @@
         <activity
             android:name=".EditImageActivity"
             android:exported="true"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" />
     </application>
 
 </manifest>
