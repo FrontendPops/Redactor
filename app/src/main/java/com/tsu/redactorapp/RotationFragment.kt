@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.abs
 import kotlin.math.cos
@@ -37,17 +38,15 @@ class RotationFragment : Fragment() {
         val image = activity?.getBitMap()
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imageView2)
         val rotatedImageView = view.findViewById<AppCompatImageView>(R.id.imageView3)
+        val angleTextView = view.findViewById<AppCompatTextView>(R.id.textView)
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
         val currentSide = min(image!!.width.toFloat(), image.height.toFloat())
         var coefficientSide = image.width.toDouble() / currentSide.toDouble()
 
-        if (currentSide <= 0.5 || (image.height.toFloat() < 800 || image.width.toFloat() < 1200))
-        {
+        if (currentSide <= 0.5 || (image.height.toFloat() < 800 || image.width.toFloat() < 1200)) {
             coefficientSide *= 2.2
-        }
-        else
-        {
+        } else {
             coefficientSide *= 1.15
         }
 
@@ -68,17 +67,15 @@ class RotationFragment : Fragment() {
         setOnClickListeners()
         val seekBar = view.findViewById<SeekBar>(R.id.seekBarForImage)
         var previousProgress = seekBar.progress
+        var superAngle: Float
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val delta = progress - previousProgress
-                val angle: Float = if (delta >= 0) {
-                    // Ползунок движется вправо
-                    (progress - 50).toFloat() * 360f / 50f
-                } else {
-                    // Ползунок движется влево
-                    360 - (50 - progress).toFloat() * 360f / 50f
-                }
+                val angle: Float = (progress - 50).toFloat() * 360f / 50f
+                superAngle = angle
+                angleTextView.text = String.format("%.1f°", angle)
+
                 previousProgress = progress
                 imagePreview.visibility = View.INVISIBLE
                 rotatedImageView.visibility = View.VISIBLE
@@ -88,7 +85,7 @@ class RotationFragment : Fragment() {
                     }
                     rotatedImageView.setImageBitmap(image)
                 } else {
-                    currentBitmap = rotationAnyAngle(rotatedImageView, image, angle, coefficientSide)
+                    currentBitmap = rotationAnyAngle(rotatedImageView, image, superAngle, coefficientSide)
                 }
             }
 
