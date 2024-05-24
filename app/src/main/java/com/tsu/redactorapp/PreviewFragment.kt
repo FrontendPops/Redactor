@@ -116,7 +116,7 @@ class PreviewFragment : Fragment(), OnItemClickListener {
         }
         imageSave?.setOnClickListener {
             val activity: EditImageActivity? = activity as EditImageActivity?
-            activity!!?.saveImageToGallery(activity.findViewById(android.R.id.content))
+            activity!!.saveImageToGallery(activity.findViewById(android.R.id.content))
         }
     }
 }

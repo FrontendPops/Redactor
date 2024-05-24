@@ -13,4 +13,8 @@
     <string name="text_scale">Factor</string>
     <string name="button_launch_image_scale">Scale</string>
     <string name="button_launch_image_mask">Mask</string>
+    <string name="turn_left">turn left</string>
+    <string name="turn_right">turn right</string>
+    <string name="_25">25</string>
+    <string name="_1_0">1.0</string>
 </resources>

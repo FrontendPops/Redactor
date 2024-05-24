@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.tsu.redactorapp.databinding.ActivityFiltersBinding
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class EditImageActivity : AppCompatActivity() {
@@ -39,25 +42,40 @@ class EditImageActivity : AppCompatActivity() {
     }
 
     fun saveImageToGallery(view: View) {
+        val context = view.context
+        val filename = createUniqueFileName("my_image", "png")
+        val relativeLocation = Environment.DIRECTORY_PICTURES
 
-        val filename = "my_image.png"
-        val resolver = contentResolver
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH, relativeLocation)
+        }
 
+        val resolver = context.contentResolver
         val imageUri: Uri? = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        imageUri?.let { uri ->
-            try {
-                resolver.openOutputStream(uri)?.use { fos ->
-                    sharedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                    Snackbar.make(view, "Image saved", Snackbar.LENGTH_SHORT).show()
 
+        if (imageUri != null) {
+            try {
+                resolver.openOutputStream(imageUri).use { outputStream ->
+                    if (outputStream != null) {
+                        sharedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        Snackbar.make(view, "Image saved", Snackbar.LENGTH_SHORT).show()
+                    } else {
+                        Snackbar.make(view, "Failed to save image", Snackbar.LENGTH_SHORT).show()
+                    }
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
+                Snackbar.make(view, "Failed to save image", Snackbar.LENGTH_SHORT).show()
             }
+        } else {
+            Snackbar.make(view, "Failed to create file", Snackbar.LENGTH_SHORT).show()
         }
+    }
+
+    private fun createUniqueFileName(baseName: String, extension: String): String {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        return "$baseName$timeStamp.$extension"
     }
 }
