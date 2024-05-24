@@ -45,9 +45,13 @@ class RotationFragment : Fragment() {
         val currentSide = min(image!!.width.toFloat(), image.height.toFloat())
         var coefficientSide = image.width.toDouble() / currentSide.toDouble()
 
-        if (currentSide <= 0.5 || (image.height.toFloat() < 800 || image.width.toFloat() < 1200)) {
-            coefficientSide *= 2.2
-        } else {
+        if (coefficientSide <= 0.5 || (image.height.toFloat() < 800 && image.height.toFloat() > 400 && image.width.toFloat() < 1200 && image.width.toFloat() > 600)) {
+            coefficientSide *= 2.3
+        } else if (coefficientSide == 1.0) {
+            coefficientSide *= 1.7
+        }else if (coefficientSide > 1 && (image.height.toFloat() <= 400 && image.width.toFloat() <= 600)) {
+            coefficientSide *= 4.2
+        }else {
             coefficientSide *= 1.15
         }
 
