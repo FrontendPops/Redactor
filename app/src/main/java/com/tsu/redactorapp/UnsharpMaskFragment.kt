@@ -1,28 +1,24 @@
 package com.tsu.redactorapp
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
-import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 @Suppress("DEPRECATION")
 class UnsharpMaskFragment : Fragment() {
 
@@ -41,15 +37,14 @@ class UnsharpMaskFragment : Fragment() {
         exportBitmap = originalBitmap
         imageView = root.findViewById(R.id.imageViewPreview)
         imageView.setImageBitmap(originalBitmap)
-
         val buttonUnSharpMask: Button = root.findViewById(R.id.maskButton)
+        setListeners()
 
         buttonUnSharpMask.setOnClickListener {
-            GlobalScope.launch {
-                unsharpMask(15, 200);
+            CoroutineScope(Dispatchers.Main).launch {
+                unsharpMask(15, 200)
             }
         }
-        setListeners()
         return root
     }
 
@@ -60,45 +55,40 @@ class UnsharpMaskFragment : Fragment() {
             return
         }
 
-        // Cancel any existing coroutine to avoid overlapping
-        coroutineScope.coroutineContext.cancelChildren()
+        withContext(Dispatchers.Default) {
+            val blurredBitmap = GaussianBlur(originalBitmap!!, radius)
 
-        coroutineScope.launch {
-            originalBitmap?.let { bitmap ->
-                val width = bitmap.width
-                val height = bitmap.height
-                val blurredBitmap = GaussianBlur(bitmap, radius)
-                val unsharpMaskBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val amountOver = amount / 256.0
 
-                val pixels = IntArray(width * height)
-                val blurredPixels = IntArray(width * height)
-                bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
-                blurredBitmap.getPixels(blurredPixels, 0, width, 0, 0, width, height)
+            val pixels = IntArray(originalBitmap!!.width * originalBitmap!!.height)
+            val blurredPixels = IntArray(originalBitmap!!.width * originalBitmap!!.height)
 
-                val amountOver = amount / 256.0
+            originalBitmap!!.getPixels(pixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
+            blurredBitmap.getPixels(blurredPixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
 
-                for (i in pixels.indices) {
-                    val pixel = pixels[i]
-                    val blurredPixel = blurredPixels[i]
+            for (i in pixels.indices) {
+                val pixel = pixels[i]
+                val blurredPixel = blurredPixels[i]
 
-                    val diffRed = ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
-                    val diffGreen = ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
-                    val diffBlue = ((pixel and 0xFF) - (blurredPixel and 0xFF)) * amountOver
+                val diffRed = ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
+                val diffGreen = ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
+                val diffBlue = ((pixel and 0xFF) - (blurredPixel and 0xFF)) * amountOver
 
-                    val newRed = ((pixel shr 16 and 0xFF) + diffRed).coerceIn(0.0, 255.0).toInt()
-                    val newGreen = ((pixel shr 8 and 0xFF) + diffGreen).coerceIn(0.0, 255.0).toInt()
-                    val newBlue = ((pixel and 0xFF) + diffBlue).coerceIn(0.0, 255.0).toInt()
+                val newRed = ((pixel shr 16 and 0xFF) + diffRed).coerceIn(0.0, 255.0).toInt()
+                val newGreen = ((pixel shr 8 and 0xFF) + diffGreen).coerceIn(0.0, 255.0).toInt()
+                val newBlue = ((pixel and 0xFF) + diffBlue).coerceIn(0.0, 255.0).toInt()
 
-                    pixels[i] = (0xFF shl 24) or (newRed shl 16) or (newGreen shl 8) or newBlue
-                }
-
-                unsharpMaskBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-
-                exportBitmap = unsharpMaskBitmap
-
-                imageView.setImageBitmap(unsharpMaskBitmap)
+                pixels[i] = (0xFF shl 24) or (newRed shl 16) or (newGreen shl 8) or newBlue
             }
-            Snackbar.make(root , "Masked", Snackbar.LENGTH_SHORT).show()
+
+            val unsharpMaskBitmap = Bitmap.createBitmap(originalBitmap!!.width, originalBitmap!!.height, Bitmap.Config.ARGB_8888)
+            unsharpMaskBitmap.setPixels(pixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
+
+            exportBitmap = unsharpMaskBitmap
+            withContext(Dispatchers.Main) {
+                imageView.setImageBitmap(unsharpMaskBitmap)
+                Snackbar.make(root, "Masked", Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
     private fun GaussianBlur(bitmap: Bitmap, radius: Int): Bitmap {

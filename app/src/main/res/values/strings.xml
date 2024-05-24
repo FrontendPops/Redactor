@@ -8,4 +8,9 @@
     <string name="title_activity_main">MainActivity</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="main_activity_spline_button">spline</string>
+    <string name="button_launch_image_recognition">Recognize</string>
+    <string name="text_scale">Factor</string>
+    <string name="button_launch_image_scale">Scale</string>
+    <string name="button_launch_image_mask">Mask</string>
 </resources>

@@ -50,7 +50,8 @@ class PreviewFragment : Fragment(), OnItemClickListener {
             ImageItem(R.drawable.filters_button),
             ImageItem(R.drawable.resize_button),
             ImageItem(R.drawable.retouch_button),
-            ImageItem(R.drawable.face_button)
+            ImageItem(R.drawable.face_button),
+            ImageItem(R.drawable.mask_button)
         )
 
         val imageAdapter = ImageAdapter(this)
@@ -83,6 +84,10 @@ class PreviewFragment : Fragment(), OnItemClickListener {
             4 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())?.commit()
+            }
+            5 -> currentView?.let {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.fragmentContainerView2, UnsharpMaskFragment.newInstance())?.commit()
             }
 
         }

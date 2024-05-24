@@ -68,7 +68,7 @@ class ScaleFragment : Fragment() {
     private suspend fun scaleImage(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
             withContext(Dispatchers.Default) {
-                val scaledBitmap = scaleBitmap(bitmap, scaleFactor)
+                scaledBitmap = scaleBitmap(bitmap, scaleFactor)
                 withContext(Dispatchers.Main) {
                     imageView.setImageBitmap(scaledBitmap)
                 }
@@ -125,7 +125,7 @@ class ScaleFragment : Fragment() {
                 val height = bitmap.height
                 val scaledWidth = (width * scaleFactor).toInt()
                 val scaledHeight = (height * scaleFactor).toInt()
-                val scaledBitmap = Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888)
+                val scaledBitmapTemp = Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888)
 
                 val scaleX = width.toFloat() / scaledWidth
                 val scaleY = height.toFloat() / scaledHeight
@@ -188,7 +188,8 @@ class ScaleFragment : Fragment() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    scaledBitmap.setPixels(pixels, 0, scaledWidth, 0, 0, scaledWidth, scaledHeight)
+                    scaledBitmapTemp.setPixels(pixels, 0, scaledWidth, 0, 0, scaledWidth, scaledHeight)
+                    scaledBitmap = scaledBitmapTemp
                     imageView.setImageBitmap(scaledBitmap)
                     Snackbar.make(root , "Scaled", Snackbar.LENGTH_SHORT).show()
                 }

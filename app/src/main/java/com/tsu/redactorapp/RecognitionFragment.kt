@@ -42,9 +42,6 @@ class RecognitionFragment : Fragment() {
     private lateinit var root: View
     private var originalBitmap: Bitmap? = null
     private var exportBitmap: Bitmap? = null
-
-    private lateinit var getImageFromGallery: ActivityResultLauncher<Intent>
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,7 +61,6 @@ class RecognitionFragment : Fragment() {
                 detectFaces()
             }
         }
-
         return root
     }
 
@@ -75,7 +71,6 @@ class RecognitionFragment : Fragment() {
             return
         }
 
-        // Cancel any existing coroutine to avoid overlapping
         coroutineScope.coroutineContext.cancelChildren()
 
         coroutineScope.launch {
