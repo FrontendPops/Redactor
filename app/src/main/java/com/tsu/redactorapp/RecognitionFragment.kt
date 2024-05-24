@@ -1,40 +1,31 @@
 package com.tsu.redactorapp
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
-import org.opencv.android.OpenCVLoader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 import org.opencv.core.MatOfRect
-import org.opencv.core.Rect
 import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-import kotlinx.coroutines.*
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class RecognitionFragment : Fragment() {
 
@@ -64,7 +55,7 @@ class RecognitionFragment : Fragment() {
         return root
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main) // CoroutineScope tied to the Main dispatcher
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
      private suspend fun detectFaces() {
         if (originalBitmap == null) {
@@ -175,7 +166,7 @@ class RecognitionFragment : Fragment() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel() // Cancel the CoroutineScope when the activity or fragment is destroyed
+        coroutineScope.cancel()
     }
     companion object {
         @JvmStatic

@@ -18,12 +18,6 @@ import androidx.core.graphics.drawable.toBitmap
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 @Suppress("DEPRECATION")
 class ScaleFragment : Fragment() {
     private lateinit var imageView: ImageView
@@ -34,7 +28,7 @@ class ScaleFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         root = inflater.inflate(R.layout.fragment_scale, container, false)
         val activity: EditImageActivity? = activity as EditImageActivity?
         originalBitmap = activity?.getBitMap()!!
@@ -47,14 +41,13 @@ class ScaleFragment : Fragment() {
         buttonScaleImage.setOnClickListener {
             val scaleFactorText = scaleFactors.text.toString()
             if (scaleFactorText.isNotEmpty()) {
-                val scaleFactor : Float? = scaleFactorText.toFloatOrNull()
+                val scaleFactor: Float? = scaleFactorText.toFloatOrNull()
 
                 if (scaleFactor!! > 1f) {
                     CoroutineScope(Dispatchers.Main).launch {
                         scaleImage(scaleFactor)
                     }
-                }
-                else {
+                } else {
                     CoroutineScope(Dispatchers.Main).launch {
                         scaleImageTrilinear(scaleFactor)
                     }
@@ -64,6 +57,7 @@ class ScaleFragment : Fragment() {
         }
         return root
     }
+
     @SuppressLint("SuspiciousIndentation")
     private suspend fun scaleImage(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
@@ -75,6 +69,7 @@ class ScaleFragment : Fragment() {
             }
         }
     }
+
     private fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
         val width = (bitmap.width * scaleFactor).toInt()
         val height = (bitmap.height * scaleFactor).toInt()
@@ -101,23 +96,52 @@ class ScaleFragment : Fragment() {
                 val dx = extraX - x1
                 val dy = extraY - y1
 
-                val red = bilinearInterpolation(pixel1 shr 16 and 0xFF, pixel2 shr 16 and 0xFF, pixel3 shr 16 and 0xFF, pixel4 shr 16 and 0xFF, dx, dy)
-                val green = bilinearInterpolation(pixel1 shr 8 and 0xFF, pixel2 shr 8 and 0xFF, pixel3 shr 8 and 0xFF, pixel4 shr 8 and 0xFF, dx, dy)
-                val blue = bilinearInterpolation(pixel1 and 0xFF, pixel2 and 0xFF, pixel3 and 0xFF, pixel4 and 0xFF, dx, dy)
+                val red = bilinearInterpolation(
+                    pixel1 shr 16 and 0xFF,
+                    pixel2 shr 16 and 0xFF,
+                    pixel3 shr 16 and 0xFF,
+                    pixel4 shr 16 and 0xFF,
+                    dx,
+                    dy
+                )
+                val green = bilinearInterpolation(
+                    pixel1 shr 8 and 0xFF,
+                    pixel2 shr 8 and 0xFF,
+                    pixel3 shr 8 and 0xFF,
+                    pixel4 shr 8 and 0xFF,
+                    dx,
+                    dy
+                )
+                val blue = bilinearInterpolation(
+                    pixel1 and 0xFF,
+                    pixel2 and 0xFF,
+                    pixel3 and 0xFF,
+                    pixel4 and 0xFF,
+                    dx,
+                    dy
+                )
 
-                val newColor = android.graphics.Color.argb(255, red, green, blue)
+                val newColor = Color.argb(255, red, green, blue)
                 scaledBitmap.setPixel(x, y, newColor)
             }
         }
-        Snackbar.make(root , "Scaled", Snackbar.LENGTH_SHORT).show()
-        //bitmap.recycle()
+        Snackbar.make(root, "Scaled", Snackbar.LENGTH_SHORT).show()
         return scaledBitmap
     }
-    private fun bilinearInterpolation(pixel1: Int, pixel2: Int, pixel3: Int, pixel4: Int, dx: Float, dy: Float): Int {
+
+    private fun bilinearInterpolation(
+        pixel1: Int,
+        pixel2: Int,
+        pixel3: Int,
+        pixel4: Int,
+        dx: Float,
+        dy: Float
+    ): Int {
         val pixels1 = (pixel1 * (1 - dx) + pixel2 * dx).toInt()
         val pixels2 = (pixel3 * (1 - dx) + pixel4 * dx).toInt()
         return ((pixels1 * (1 - dy) + pixels2 * dy).toInt())
     }
+
     private fun scaleImageTrilinear(scaleFactor: Float) {
         originalBitmap?.let { bitmap ->
             CoroutineScope(Dispatchers.IO).launch {
@@ -125,7 +149,8 @@ class ScaleFragment : Fragment() {
                 val height = bitmap.height
                 val scaledWidth = (width * scaleFactor).toInt()
                 val scaledHeight = (height * scaleFactor).toInt()
-                val scaledBitmapTemp = Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888)
+                val scaledBitmapTemp =
+                    Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888)
 
                 val scaleX = width.toFloat() / scaledWidth
                 val scaleY = height.toFloat() / scaledHeight
@@ -162,19 +187,43 @@ class ScaleFragment : Fragment() {
                             val pixel4 = blurredBitmap.getPixel(x2, y2)
 
                             val pixel5 = if (y1 > 0) blurredBitmap.getPixel(x1, y1 - 1) else pixel1
-                            val pixel6 = if (x2 < width - 1) blurredBitmap.getPixel(x2 + 1, y1) else pixel2
-                            val pixel7 = if (y2 < height - 1) blurredBitmap.getPixel(x1, y2 + 1) else pixel3
-                            val pixel8 = if (x2 < width - 1 && y2 < height - 1) blurredBitmap.getPixel(x2 + 1, y2 + 1) else pixel4
+                            val pixel6 =
+                                if (x2 < width - 1) blurredBitmap.getPixel(x2 + 1, y1) else pixel2
+                            val pixel7 =
+                                if (y2 < height - 1) blurredBitmap.getPixel(x1, y2 + 1) else pixel3
+                            val pixel8 =
+                                if (x2 < width - 1 && y2 < height - 1) blurredBitmap.getPixel(
+                                    x2 + 1,
+                                    y2 + 1
+                                ) else pixel4
 
                             val red = trilinearInterpolation(
-                                pixel1 shr 16 and 0xFF, pixel2 shr 16 and 0xFF, pixel3 shr 16 and 0xFF, pixel4 shr 16 and 0xFF,
-                                pixel5 shr 16 and 0xFF, pixel6 shr 16 and 0xFF, pixel7 shr 16 and 0xFF, pixel8 shr 16 and 0xFF,
-                                dx1, dy1, dx2, dy2
+                                pixel1 shr 16 and 0xFF,
+                                pixel2 shr 16 and 0xFF,
+                                pixel3 shr 16 and 0xFF,
+                                pixel4 shr 16 and 0xFF,
+                                pixel5 shr 16 and 0xFF,
+                                pixel6 shr 16 and 0xFF,
+                                pixel7 shr 16 and 0xFF,
+                                pixel8 shr 16 and 0xFF,
+                                dx1,
+                                dy1,
+                                dx2,
+                                dy2
                             )
                             val green = trilinearInterpolation(
-                                pixel1 shr 8 and 0xFF, pixel2 shr 8 and 0xFF, pixel3 shr 8 and 0xFF, pixel4 shr 8 and 0xFF,
-                                pixel5 shr 8 and 0xFF, pixel6 shr 8 and 0xFF, pixel7 shr 8 and 0xFF, pixel8 shr 8 and 0xFF,
-                                dx1, dy1, dx2, dy2
+                                pixel1 shr 8 and 0xFF,
+                                pixel2 shr 8 and 0xFF,
+                                pixel3 shr 8 and 0xFF,
+                                pixel4 shr 8 and 0xFF,
+                                pixel5 shr 8 and 0xFF,
+                                pixel6 shr 8 and 0xFF,
+                                pixel7 shr 8 and 0xFF,
+                                pixel8 shr 8 and 0xFF,
+                                dx1,
+                                dy1,
+                                dx2,
+                                dy2
                             )
                             val blue = trilinearInterpolation(
                                 pixel1 and 0xFF, pixel2 and 0xFF, pixel3 and 0xFF, pixel4 and 0xFF,
@@ -182,20 +231,29 @@ class ScaleFragment : Fragment() {
                                 dx1, dy1, dx2, dy2
                             )
 
-                            pixels[x + y * scaledWidth] = android.graphics.Color.argb(255, red, green, blue)
+                            pixels[x + y * scaledWidth] = Color.argb(255, red, green, blue)
                         }
                     }
                 }
 
                 withContext(Dispatchers.Main) {
-                    scaledBitmapTemp.setPixels(pixels, 0, scaledWidth, 0, 0, scaledWidth, scaledHeight)
+                    scaledBitmapTemp.setPixels(
+                        pixels,
+                        0,
+                        scaledWidth,
+                        0,
+                        0,
+                        scaledWidth,
+                        scaledHeight
+                    )
                     scaledBitmap = scaledBitmapTemp
                     imageView.setImageBitmap(scaledBitmap)
-                    Snackbar.make(root , "Scaled", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(root, "Scaled", Snackbar.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
     private fun trilinearInterpolation(
         pixel1: Int, pixel2: Int, pixel3: Int, pixel4: Int,
         pixel5: Int, pixel6: Int, pixel7: Int, pixel8: Int,
@@ -211,10 +269,16 @@ class ScaleFragment : Fragment() {
 
         return linearInterpolation(pixels3, pixels6, dx2)
     }
+
     private fun linearInterpolation(pixel1: Int, pixel2: Int, ratio: Float): Int {
         return (pixel1 * (1 - ratio) + pixel2 * ratio).toInt()
     }
-    private fun applyGaussianBlur(bitmap: Bitmap, horizontalRadius: Int, verticalRadius: Int): Bitmap {
+
+    private fun applyGaussianBlur(
+        bitmap: Bitmap,
+        horizontalRadius: Int,
+        verticalRadius: Int
+    ): Bitmap {
         val horizontalRadiuses = (horizontalRadius * 3)
         val verticalRadiuses = (verticalRadius * 2)
         val horizontalWeights = calculatingGaussianWeights(horizontalRadiuses)
@@ -274,6 +338,7 @@ class ScaleFragment : Fragment() {
 
         return finalBitmap
     }
+
     private fun calculatingGaussianWeights(radius: Int): Array<DoubleArray> {
         val size = 2 * radius + 1
         val weights = Array(size) { DoubleArray(size) }
@@ -298,6 +363,7 @@ class ScaleFragment : Fragment() {
         }
         return weights
     }
+
     @Suppress("DEPRECATION")
     private fun setListeners() {
         val imageBack = root.findViewById<AppCompatImageView>(R.id.imageBackScale)

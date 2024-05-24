@@ -12,12 +12,14 @@ import android.view.View
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class SplineCanvas (
+class SplineCanvas(
     context: Context,
-    attrs: AttributeSet): View(context, attrs) {
-        init {
+    attrs: AttributeSet
+) : View(context, attrs) {
+    init {
 
-        }
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawPath(splinePath, splinePaint)
@@ -26,6 +28,7 @@ class SplineCanvas (
             canvas.drawCircle(point.x, point.y, 10f, pointPaint)
         }
     }
+
     private val pointPaint = Paint().apply {
         isAntiAlias = true
         strokeWidth = 8f
@@ -67,14 +70,10 @@ class SplineCanvas (
                         }
                         invalidate()
                     }
-                }
-                else {
-                    if (possiblePoint != null)
-                    {
+                } else {
+                    if (possiblePoint != null) {
                         selectedPoint = possiblePoint
-                    }
-                    else
-                    {
+                    } else {
                         points.add(PointF(x, y))
                         connectPoints()
                         invalidate()
@@ -84,6 +83,7 @@ class SplineCanvas (
 
                 return true
             }
+
             MotionEvent.ACTION_MOVE -> {
                 selectedPoint?.let {
                     it.x = x
@@ -97,6 +97,7 @@ class SplineCanvas (
                 }
                 return true
             }
+
             MotionEvent.ACTION_UP -> {
                 selectedPoint = null
                 if (isSplined) {
@@ -135,9 +136,12 @@ class SplineCanvas (
 
                 for (t in 0..100) {
                     val tFloat = t / 100.0f
-                    val a0 = -tension * tFloat + 2 * tension * tFloat * tFloat - tension * tFloat * tFloat * tFloat
-                    val a1 = 1 + (tension - 3) * tFloat * tFloat + (2 - tension) * tFloat * tFloat * tFloat
-                    val a2 = tFloat + (3 - 2 * tension) * tFloat * tFloat - (2 - tension) * tFloat * tFloat * tFloat
+                    val a0 =
+                        -tension * tFloat + 2 * tension * tFloat * tFloat - tension * tFloat * tFloat * tFloat
+                    val a1 =
+                        1 + (tension - 3) * tFloat * tFloat + (2 - tension) * tFloat * tFloat * tFloat
+                    val a2 =
+                        tFloat + (3 - 2 * tension) * tFloat * tFloat - (2 - tension) * tFloat * tFloat * tFloat
                     val a3 = -tension * tFloat * tFloat + tension * tFloat * tFloat * tFloat
 
                     val x = a0 * p0.x + a1 * p1.x + a2 * p2.x + a3 * p3.x
@@ -148,6 +152,7 @@ class SplineCanvas (
         }
         invalidate()
     }
+
     private fun connectPoints() {
         path.reset()
         isSplined = false
@@ -158,6 +163,4 @@ class SplineCanvas (
             }
         }
     }
-
-
 }

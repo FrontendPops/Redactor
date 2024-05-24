@@ -1,20 +1,16 @@
 package com.tsu.redactorapp
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.carousel.MaskableFrameLayout
 import com.google.android.material.carousel.UncontainedCarouselStrategy
-import com.google.android.material.transition.Hold
-import com.google.android.material.transition.MaterialContainerTransform
 import com.tsu.redactorapp.adaptive.ImageAdapter
 import com.tsu.redactorapp.models.ImageItem
 
@@ -24,18 +20,18 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_preview, container, false)
 
     }
+
     @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentFilter = FilterFragment()
+        FilterFragment()
         setListeners()
-        val imageBack = view.findViewById<AppCompatImageView>(R.id.imageBack)
+        view.findViewById<AppCompatImageView>(R.id.imageBack)
         val activity: EditImageActivity? = activity as EditImageActivity?
         val image = activity?.getBitMap()
         val imagePreview = view.findViewById<AppCompatImageView>(R.id.imagePreview)
@@ -65,36 +61,45 @@ class PreviewFragment : Fragment(), OnItemClickListener {
     override fun onItemClick(position: Int) {
         val imageAdapter = ImageAdapter(this)
         val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewPreview)
-        val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
-        currentView?.transitionName ="shared_element_two"
-        when(position)
-        {
+        val currentView =
+            imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(
+                R.id.itemContainer
+            )
+        currentView?.transitionName = "shared_element_two"
+        when (position) {
             0 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, RotationFragment.newInstance())?.commit()
             }
+
             1 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, FilterFragment.newInstance())?.commit()
             }
+
             2 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, ScaleFragment.newInstance())?.commit()
             }
+
             4 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())?.commit()
+                    ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())
+                    ?.commit()
             }
+
             5 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.fragmentContainerView2, UnsharpMaskFragment.newInstance())?.commit()
+                    ?.replace(R.id.fragmentContainerView2, UnsharpMaskFragment.newInstance())
+                    ?.commit()
             }
 
         }
     }
+
     companion object {
         @JvmStatic
-        fun newInstance() =PreviewFragment()
+        fun newInstance() = PreviewFragment()
     }
 
     @Suppress("DEPRECATION")

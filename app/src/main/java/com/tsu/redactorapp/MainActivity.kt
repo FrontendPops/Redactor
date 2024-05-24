@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         const val KEY_IMAGE_URI = "imageUri"
     }
 
-    private  lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -28,17 +28,21 @@ class MainActivity : ComponentActivity() {
             Log.d("OpenCV", "OpenCV loaded Successfully!")
     }
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            data?.data?.let { imageUri ->
-                Intent(applicationContext, EditImageActivity::class.java).also { editImageIntent ->
-                    editImageIntent.putExtra(KEY_IMAGE_URI, imageUri)
-                    startActivity(editImageIntent)
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                data?.data?.let { imageUri ->
+                    Intent(
+                        applicationContext,
+                        EditImageActivity::class.java
+                    ).also { editImageIntent ->
+                        editImageIntent.putExtra(KEY_IMAGE_URI, imageUri)
+                        startActivity(editImageIntent)
+                    }
                 }
             }
         }
-    }
 
     private fun setListeners() {
         binding.buttonFilters.setOnClickListener {

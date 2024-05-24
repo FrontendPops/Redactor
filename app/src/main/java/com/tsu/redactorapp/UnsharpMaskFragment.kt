@@ -13,9 +13,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,7 +28,7 @@ class UnsharpMaskFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         root = inflater.inflate(R.layout.fragment_unsharpmask, container, false)
         val activity: EditImageActivity? = activity as EditImageActivity?
         originalBitmap = activity?.getBitMap()!!
@@ -48,7 +46,8 @@ class UnsharpMaskFragment : Fragment() {
         return root
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main) // CoroutineScope tied to the Main dispatcher
+    private val coroutineScope =
+        CoroutineScope(Dispatchers.Main)
 
     private suspend fun unsharpMask(radius: Int, amount: Int) {
         if (originalBitmap == null) {
@@ -63,15 +62,33 @@ class UnsharpMaskFragment : Fragment() {
             val pixels = IntArray(originalBitmap!!.width * originalBitmap!!.height)
             val blurredPixels = IntArray(originalBitmap!!.width * originalBitmap!!.height)
 
-            originalBitmap!!.getPixels(pixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
-            blurredBitmap.getPixels(blurredPixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
+            originalBitmap!!.getPixels(
+                pixels,
+                0,
+                originalBitmap!!.width,
+                0,
+                0,
+                originalBitmap!!.width,
+                originalBitmap!!.height
+            )
+            blurredBitmap.getPixels(
+                blurredPixels,
+                0,
+                originalBitmap!!.width,
+                0,
+                0,
+                originalBitmap!!.width,
+                originalBitmap!!.height
+            )
 
             for (i in pixels.indices) {
                 val pixel = pixels[i]
                 val blurredPixel = blurredPixels[i]
 
-                val diffRed = ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
-                val diffGreen = ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
+                val diffRed =
+                    ((pixel shr 16 and 0xFF) - (blurredPixel shr 16 and 0xFF)) * amountOver
+                val diffGreen =
+                    ((pixel shr 8 and 0xFF) - (blurredPixel shr 8 and 0xFF)) * amountOver
                 val diffBlue = ((pixel and 0xFF) - (blurredPixel and 0xFF)) * amountOver
 
                 val newRed = ((pixel shr 16 and 0xFF) + diffRed).coerceIn(0.0, 255.0).toInt()
@@ -81,8 +98,20 @@ class UnsharpMaskFragment : Fragment() {
                 pixels[i] = (0xFF shl 24) or (newRed shl 16) or (newGreen shl 8) or newBlue
             }
 
-            val unsharpMaskBitmap = Bitmap.createBitmap(originalBitmap!!.width, originalBitmap!!.height, Bitmap.Config.ARGB_8888)
-            unsharpMaskBitmap.setPixels(pixels, 0, originalBitmap!!.width, 0, 0, originalBitmap!!.width, originalBitmap!!.height)
+            val unsharpMaskBitmap = Bitmap.createBitmap(
+                originalBitmap!!.width,
+                originalBitmap!!.height,
+                Bitmap.Config.ARGB_8888
+            )
+            unsharpMaskBitmap.setPixels(
+                pixels,
+                0,
+                originalBitmap!!.width,
+                0,
+                0,
+                originalBitmap!!.width,
+                originalBitmap!!.height
+            )
 
             exportBitmap = unsharpMaskBitmap
             withContext(Dispatchers.Main) {
@@ -91,6 +120,7 @@ class UnsharpMaskFragment : Fragment() {
             }
         }
     }
+
     private fun GaussianBlur(bitmap: Bitmap, radius: Int): Bitmap {
         val weights = calculateGaussianWeights(radius)
         val tempBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
@@ -148,6 +178,7 @@ class UnsharpMaskFragment : Fragment() {
 
         return finalBitmap
     }
+
     private fun calculateGaussianWeights(radius: Int): Array<DoubleArray> {
         val sigma = radius / 3.0
         val constant = 1 / (2 * Math.PI * sigma * sigma)
@@ -189,10 +220,12 @@ class UnsharpMaskFragment : Fragment() {
                 ?.replace(R.id.fragmentContainerView2, PreviewFragment.newInstance())?.commit()
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel() // Cancel the CoroutineScope when the activity or fragment is destroyed
+        coroutineScope.cancel()
     }
+
     companion object {
         @JvmStatic
         fun newInstance() = UnsharpMaskFragment()
