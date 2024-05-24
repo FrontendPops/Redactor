@@ -82,6 +82,11 @@ class PreviewFragment : Fragment(), OnItemClickListener {
                     ?.replace(R.id.fragmentContainerView2, ScaleFragment.newInstance())?.commit()
             }
 
+            3 -> currentView?.let {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.fragmentContainerView2, RetouchingFragment.newInstance())?.commit()
+            }
+
             4 -> currentView?.let {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.fragmentContainerView2, RecognitionFragment.newInstance())
