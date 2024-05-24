@@ -122,11 +122,10 @@ class UnsharpMaskFragment : Fragment() {
     }
 
     private fun GaussianBlur(bitmap: Bitmap, radius: Int): Bitmap {
-        val weights = calculateGaussianWeights(radius)
+        val weights = gaussianWeights(radius)
         val tempBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
         val finalBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
 
-        // по горизонтали размытие
         for (y in 0 until bitmap.height) {
             for (x in 0 until bitmap.width) {
                 var red = 0.0
@@ -151,7 +150,6 @@ class UnsharpMaskFragment : Fragment() {
             }
         }
 
-        // по вертикали размытие
         for (x in 0 until bitmap.width) {
             for (y in 0 until bitmap.height) {
                 var red = 0.0
@@ -179,7 +177,7 @@ class UnsharpMaskFragment : Fragment() {
         return finalBitmap
     }
 
-    private fun calculateGaussianWeights(radius: Int): Array<DoubleArray> {
+    private fun gaussianWeights(radius: Int): Array<DoubleArray> {
         val sigma = radius / 3.0
         val constant = 1 / (2 * Math.PI * sigma * sigma)
         val twoSigmaSquare = 2 * sigma * sigma
@@ -196,7 +194,6 @@ class UnsharpMaskFragment : Fragment() {
             }
         }
 
-        // нормализуем веса
         for (i in 0 until size) {
             for (j in 0 until size) {
                 weights[i][j] /= totalWeight

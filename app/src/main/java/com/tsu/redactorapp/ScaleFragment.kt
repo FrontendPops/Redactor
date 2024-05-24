@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
-import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.graphics.drawable.toBitmap
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 
@@ -281,12 +278,11 @@ class ScaleFragment : Fragment() {
     ): Bitmap {
         val horizontalRadiuses = (horizontalRadius * 3)
         val verticalRadiuses = (verticalRadius * 2)
-        val horizontalWeights = calculatingGaussianWeights(horizontalRadiuses)
-        val verticalWeights = calculatingGaussianWeights(verticalRadiuses)
+        val horizontalWeights = gaussianWeights(horizontalRadiuses)
+        val verticalWeights = gaussianWeights(verticalRadiuses)
         val tempBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
         val finalBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
 
-        // размытие по горизонтали
         for (y in 0 until bitmap.height) {
             for (x in 0 until bitmap.width) {
                 var red = 0.0
@@ -311,7 +307,6 @@ class ScaleFragment : Fragment() {
             }
         }
 
-        // размытие по вертикали
         for (x in 0 until bitmap.width) {
             for (y in 0 until bitmap.height) {
                 var red = 0.0
@@ -339,7 +334,7 @@ class ScaleFragment : Fragment() {
         return finalBitmap
     }
 
-    private fun calculatingGaussianWeights(radius: Int): Array<DoubleArray> {
+    private fun gaussianWeights(radius: Int): Array<DoubleArray> {
         val size = 2 * radius + 1
         val weights = Array(size) { DoubleArray(size) }
         val sigma = radius / 3.0
@@ -355,7 +350,6 @@ class ScaleFragment : Fragment() {
             }
         }
 
-        // нормализуем веса
         for (i in 0 until size) {
             for (j in 0 until size) {
                 weights[i][j] /= totalWeight

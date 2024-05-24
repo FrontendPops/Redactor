@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,7 @@ import android.widget.Button
 import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.graphics.drawable.toBitmap
+import androidx.fragment.app.Fragment
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.min
@@ -115,14 +114,12 @@ class RotationFragment : Fragment() {
         val pixels = IntArray(width * height)
         scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        // Углы после поворота
         val radians = Math.PI / 2
         val cosTheta = cos(radians)
         val sinTheta = sin(radians)
         val newWidth = (height * abs(sinTheta) + width * abs(cosTheta)).toInt()
         val newHeight = (height * abs(cosTheta) + width * abs(sinTheta)).toInt()
 
-        // Центр нового изображения
         val centerX = newWidth / 2f
         val centerY = newHeight / 2f
 
@@ -130,11 +127,9 @@ class RotationFragment : Fragment() {
 
         for (y in 0 until newHeight) {
             for (x in 0 until newWidth) {
-                // Исходные координаты пикселя после поворота
                 val newX = cosTheta * (centerX - x) + sinTheta * (centerY - y) + width / 2
                 val newY = -sinTheta * (centerX - x) + cosTheta * (centerY - y) + height / 2
 
-                // Округление исходных координат
                 val roundedX = newX.roundToInt()
                 val roundedY = newY.roundToInt()
 
@@ -162,14 +157,12 @@ class RotationFragment : Fragment() {
         val pixels = IntArray(width * height)
         scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        // Углы после поворота
         val radians = Math.PI / 2
         val cosTheta = cos(radians)
         val sinTheta = sin(radians)
         val newWidth = (height * abs(sinTheta) + width * abs(cosTheta)).toInt()
         val newHeight = (height * abs(cosTheta) + width * abs(sinTheta)).toInt()
 
-        // Центр нового изображения
         val centerX = newWidth / 2f
         val centerY = newHeight / 2f
 
@@ -177,11 +170,9 @@ class RotationFragment : Fragment() {
 
         for (y in 0 until newHeight) {
             for (x in 0 until newWidth) {
-                // Исходные координаты пикселя после поворота
                 val newX = cosTheta * (x - centerX) + sinTheta * (y - centerY) + width / 2
                 val newY = -sinTheta * (x - centerX) + cosTheta * (y - centerY) + height / 2
 
-                // Округление исходных координат
                 val roundedX = newX.roundToInt()
                 val roundedY = newY.roundToInt()
 
