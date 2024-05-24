@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.sqrt
 
 class RetouchingFragment : Fragment() {
-    private var radius = 10
+    private var radius = 25
     private var bitmap: Bitmap? = null
     private var x = 0
     private var y = 0
@@ -48,7 +48,7 @@ class RetouchingFragment : Fragment() {
         imagePreview.visibility = View.VISIBLE
 
         val seekBarBrush = view.findViewById<SeekBar>(R.id.seekBarBrush)
-        seekBarBrush.max = 20
+        seekBarBrush.max = 50
         seekBarBrush.progress = radius
 
         seekBarBrush.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -170,7 +170,11 @@ class RetouchingFragment : Fragment() {
                     val pixelX = x + i
                     val pixelY = y + j
                     if (pixelX >= 0 && pixelX < processedBitmap.width && pixelY >= 0 && pixelY < processedBitmap.height) {
-                        processedBitmap.setPixel(pixelX, pixelY, Color.rgb(avgRed, avgGreen, avgBlue))
+                        val weight = 1 - (distance / radius)
+                        val newRed = (avgRed * weight + Color.red(processedBitmap.getPixel(pixelX, pixelY)) * (1 - weight)).toInt()
+                        val newGreen = (avgGreen * weight + Color.green(processedBitmap.getPixel(pixelX, pixelY)) * (1 - weight)).toInt()
+                        val newBlue = (avgBlue * weight + Color.blue(processedBitmap.getPixel(pixelX, pixelY)) * (1 - weight)).toInt()
+                        processedBitmap.setPixel(pixelX, pixelY, Color.rgb(newRed, newGreen, newBlue))
                     }
                 }
             }
