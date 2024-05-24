@@ -92,6 +92,7 @@ class RecognitionFragment : Fragment() {
             "haarcascade_frontalface_alt2.xml",
             "haarcascade_frontalface_alt.xml",
             "haarcascade_frontalface_alt_tree.xml",
+            "haarcascade_profileface.xml"
         )
 
         val cascadeFiles = cascadeFilesOpenCv.map { fileName ->

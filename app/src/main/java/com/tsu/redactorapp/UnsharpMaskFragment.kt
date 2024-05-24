@@ -48,7 +48,7 @@ class UnsharpMaskFragment : Fragment() {
         return root
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main) // CoroutineScope tied to the Main dispatcher
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private suspend fun unsharpMask(radius: Int, amount: Int) {
         if (originalBitmap == null) {
@@ -191,7 +191,7 @@ class UnsharpMaskFragment : Fragment() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel() // Cancel the CoroutineScope when the activity or fragment is destroyed
+        coroutineScope.cancel()
     }
     companion object {
         @JvmStatic
