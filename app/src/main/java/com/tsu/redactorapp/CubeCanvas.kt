@@ -10,7 +10,7 @@ import android.view.View
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DiceView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
+class CubeView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
     private val paint = Paint().apply {
         style = Paint.Style.FILL
         color = Color.BLUE

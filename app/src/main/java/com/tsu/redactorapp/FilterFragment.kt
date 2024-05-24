@@ -31,9 +31,6 @@ import kotlin.math.ceil
 class FilterFragment : Fragment(), OnItemClickListener {
     lateinit var image: Bitmap
     lateinit var filteredImage : Bitmap
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,14 +40,13 @@ class FilterFragment : Fragment(), OnItemClickListener {
     }
 
     @SuppressLint("RestrictedApi")
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val activity: EditImageActivity? = activity as EditImageActivity?
         image = activity?.getBitMap()!!
-        image?.let { Bitmap.createBitmap(it) }!!
+        image.let { Bitmap.createBitmap(it) }
         val imagePreview = view.findViewById<AppCompatImageView>(com.tsu.redactorapp.R.id.imagePreview)
-        image?.let { setFilterListeners(imagePreview) }
+        setFilterListeners(imagePreview)
         imagePreview.setImageBitmap(image)
         imagePreview.visibility = View.VISIBLE
 
@@ -79,7 +75,7 @@ class FilterFragment : Fragment(), OnItemClickListener {
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("WrongViewCast")
     override fun onItemClick(position: Int) {
-        val imageAdapter = ImageAdapter(this)
+        ImageAdapter(this)
         val imagePreview = view?.findViewById<AppCompatImageView>(com.tsu.redactorapp.R.id.imagePreview)
         val imageRV = view?.findViewById<RecyclerView>(R.id.imageRecyclerViewFilters)
         val currentView = imageRV?.findViewHolderForAdapterPosition(position)?.itemView?.findViewById<MaskableFrameLayout>(R.id.itemContainer)
@@ -87,38 +83,35 @@ class FilterFragment : Fragment(), OnItemClickListener {
         {
             0 -> currentView?.let {
                 GlobalScope.async {
-                    imagePreview!!.setImageBitmap(applyBlackAndWhiteFilter(image!!))
+                    imagePreview!!.setImageBitmap(applyBlackAndWhiteFilter(image))
                 }
             }
             1 -> currentView?.let {
                 GlobalScope.async {
-                    imagePreview!!.setImageBitmap(applyContrast(image!!, 1.5f))
+                    imagePreview!!.setImageBitmap(applyContrast(image, 1.5f))
                 }
             }
             2 -> currentView?.let {
                 GlobalScope.async {
-                    imagePreview!!.setImageBitmap(blurBitmap(image!!, 5))
+                    imagePreview!!.setImageBitmap(applyBlur(image, 5))
                 }
             }
             3 -> currentView?.let {
                 GlobalScope.async {
-                    imagePreview!!.setImageBitmap(addNoise(image!!, 20))
+                    imagePreview!!.setImageBitmap(addNoise(image, 20))
                 }
             }
             4 -> currentView?.let {
                 GlobalScope.async {
-                    imagePreview!!.setImageBitmap(invertBitmapColors(image!!))
+                    imagePreview!!.setImageBitmap(applyInvertion(image))
                 }
             }
 
 
         }
     }
-    fun getFilteredBitMap(): Bitmap {
-        return filteredImage
-    }
 
-    private suspend fun invertBitmapColors(bitmap: Bitmap): Bitmap {
+    private suspend fun applyInvertion(bitmap: Bitmap): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
         val pixelCount = height * width
@@ -152,7 +145,7 @@ class FilterFragment : Fragment(), OnItemClickListener {
 
         return invertedBitmap
     }
-    private fun blurBitmap(bitmap: Bitmap, radius: Int): Bitmap {
+    private fun applyBlur(bitmap: Bitmap, radius: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
 

@@ -39,7 +39,6 @@ class EditImageActivity : AppCompatActivity() {
     }
 
     fun saveImageToGallery(view: View) {
-        // Assuming you have the image bitmap as 'bitmap'
 
         val filename = "my_image.png"
         val resolver = contentResolver
@@ -57,7 +56,6 @@ class EditImageActivity : AppCompatActivity() {
 
                 }
             } catch (e: IOException) {
-                // Handle error
                 e.printStackTrace()
             }
         }
