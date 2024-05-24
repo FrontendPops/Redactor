@@ -46,10 +46,12 @@ class RotationFragment : Fragment() {
 
         if (coefficientSide <= 0.5 || (image.height.toFloat() < 800 && image.height.toFloat() > 400 && image.width.toFloat() < 1200 && image.width.toFloat() > 600)) {
             coefficientSide *= 2.3
-        } else if (coefficientSide == 1.0) {
-            coefficientSide *= 1.7
+        }else if (coefficientSide == 1.0 && (image.width.toFloat() <= 600 && image.width.toFloat() >= 400 && image.height.toFloat() <= 800 && image.height.toFloat() >= 600)) {
+            coefficientSide *= 2.7
         }else if (coefficientSide > 1 && (image.height.toFloat() <= 400 && image.width.toFloat() <= 600)) {
             coefficientSide *= 4.2
+        }else if (coefficientSide == 1.0) {
+            coefficientSide *= 1.7
         }else {
             coefficientSide *= 1.15
         }
