@@ -11,14 +11,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class CubeView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
-    private val paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.BLUE
-        strokeWidth = 5f
-        textSize = 40f
-        isAntiAlias = true
-    }
-
+    private val paint = Paint()
     private var angleX = 0f
     private var angleY = 0f
     private var angleZ = 0f
@@ -27,6 +20,10 @@ class CubeView(context: Context, attrs: AttributeSet? = null) : View(context, at
 
     init {
         paint.isAntiAlias = true
+        paint.textSize = 40f
+        paint.color = Color.BLUE
+        paint.strokeWidth = 5f
+        paint.style = Paint.Style.FILL
     }
 
     override fun onDraw(canvas: Canvas) {

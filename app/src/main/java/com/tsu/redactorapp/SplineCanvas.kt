@@ -13,8 +13,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class SplineCanvas(
-    context: Context,
-    attrs: AttributeSet
+    context: Context, attrs: AttributeSet
 ) : View(context, attrs) {
     init {
 
@@ -60,7 +59,6 @@ class SplineCanvas(
                 possiblePoint = points.find { isPointTouched(it, event.x, event.y) }
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastTouchDownTime <= doubleClickDelay) {
-                    // Double-click detected
                     points.find { isPointTouched(it, x, y) }?.let { selectedPoint ->
                         points.remove(selectedPoint)
                         if (isSplined) {
@@ -117,7 +115,7 @@ class SplineCanvas(
         val distance = sqrt(dx.pow(2) + dy.pow(2))
         return distance <= touchTolerance
     }
-
+//катмулРом
     fun performSpline() {
         isSplined = true
         path.reset()
